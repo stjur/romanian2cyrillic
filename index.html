@@ -3,227 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Transliterator</title>
+    <title>Transliteration Software</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            margin-top: 50px;
         }
-        .container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        textarea {
-            width: 300px;
+        #textBox {
+            width: 500px;
             height: 150px;
+            font-size: 18px;
+            padding: 10px;
             margin-bottom: 20px;
         }
         .keyboard {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 600px;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
         }
         .key {
-            width: 40px;
-            height: 40px;
-            margin: 5px;
+            padding: 15px;
+            text-align: center;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             cursor: pointer;
-            background-color: white;
-            position: relative;
+            user-select: none;
         }
-        .key span {
-            font-size: 14px;
-        }
-        .key .latin {
-            font-size: 10px;
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            color: grey;
-        }
-        .key.shift, .key.alt, .key.accent {
-            width: 80px;
-        }
-        .key.blink {
-            background-color: yellow;
+        .modifier {
+            grid-column: span 2;
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Real-Time Transliterator</h1>
-        <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
+    <textarea id="textBox"></textarea>
+    <div class="keyboard">
+        <div class="key">a</div>
+        <div class="key">b</div>
+        <div class="key">c</div>
+        <div class="key">d</div>
+        <div class="key">e</div>
+        <div class="key">f</div>
+        <div class="key">g</div>
+        <div class="key">h</div>
+        <div class="key">i</div>
+        <div class="key">j</div>
+        <div class="key">k</div>
+        <div class="key">l</div>
+        <div class="key">m</div>
+        <div class="key">n</div>
+        <div class="key">o</div>
+        <div class="key">p</div>
+        <div class="key">r</div>
+        <div class="key">s</div>
+        <div class="key">t</div>
+        <div class="key">u</div>
+        <div class="key">v</div>
+        <div class="key">x</div>
+        <div class="key">y</div>
+        <div class="key">z</div>
+        <div class="key">î</div>
+        <div class="key">â</div>
+        <div class="key">ă</div>
+        <div class="key">ș</div>
+        <div class="key">ț</div>
+        <div class="key modifier">Shift</div>
+        <div class="key modifier">Alt</div>
+        <div class="key modifier">´</div>
     </div>
-    <div class="keyboard" id="keyboard"></div>
+
     <script>
-        const inputText = document.getElementById('inputText');
-        const keyboard = document.getElementById('keyboard');
-
-        const transliterationRules = {
-            'a': 'а', 'A': 'А',
-            'b': 'б', 'B': 'Б',
-            'c': 'ч', 'C': 'Ч',
-            'd': 'д', 'D': 'Д',
-            'e': 'є', 'E': 'Є',
-            'f': 'ф', 'F': 'Ф',
-            'g': 'г', 'G': 'Г',
-            'h': 'х', 'H': 'Х',
-            'i': 'и', 'I': 'И',
-            'j': 'џ', 'J': 'Џ',
-            'k': 'к', 'K': 'К',
-            'l': 'ʌ', 'L': 'Ʌ',
-            'm': 'м', 'M': 'М',
-            'n': 'н', 'N': 'Н',
-            'o': 'ѡ', 'O': 'Ѡ',
-            'p': 'п', 'P': 'П',
-            'r': 'р', 'R': 'Р',
-            's': 'с', 'S': 'С',
-            't': 'т', 'T': 'Т',
-            'u': 'ꙋ', 'U': 'Ꙋ',
-            'v': 'в', 'V': 'В',
-            'x': 'ѯ', 'X': 'Ѯ',
-            'y': 'ѵ', 'Y': 'Ѵ',
-            'z': 'з', 'Z': 'З',
-            'î': 'ꙟ', 'Î': 'Ꙟ',
-            'â': 'ѫ', 'Â': 'Ѫ',
-            'ă': 'ъ', 'Ă': 'Ъ',
-            'ș': 'ш', 'Ș': 'Ш',
-            'ț': 'ц', 'Ț': 'Ц'
+        const translitMap = {
+            'a': 'а', 'b': 'б', 'c': 'ч', 'd': 'д', 'e': 'є', 'f': 'ф', 'g': 'г', 'h': 'х', 'i': 'и',
+            'j': 'џ', 'k': 'к', 'l': 'ʌ', 'm': 'м', 'n': 'н', 'o': 'ѡ', 'p': 'п', 'r': 'р', 's': 'с',
+            't': 'т', 'u': 'ꙋ', 'v': 'в', 'x': 'ѯ', 'y': 'ѵ', 'z': 'з', 'î': 'ꙟ', 'â': 'ѫ', 'ă': 'ъ',
+            'ș': 'ш', 'ț': 'ц'
         };
 
-        const transliterationRulesAlt = {
-            ...transliterationRules,
-            'i': 'ї', 'I': 'Ї'
-        };
+        const altMap = {'i': 'ї'};
 
-        const vowels = new Set(['а', 'є', 'и', 'ї', 'ѡ', 'ꙋ', 'ъ', 'ѫ', 'ꙟ']);
-        const combiningAcuteAccent = '\u0301';
+        let isShift = false;
+        let isAlt = false;
+        let isAcute = false;
 
-        let isShiftActive = false;
-        let isAltActive = false;
-        let isAccentActive = false;
+        const textBox = document.getElementById('textBox');
+        const keys = document.querySelectorAll('.key');
 
-        function transliterate(char) {
-            let result = char;
-            if (isShiftActive) {
-                result = result.toUpperCase();
-            }
-            if (isAltActive && transliterationRulesAlt[result]) {
-                result = transliterationRulesAlt[result];
-            } else if (transliterationRules[result]) {
-                result = transliterationRules[result];
-            }
-            if (isAccentActive && vowels.has(result)) {
-                result = result + combiningAcuteAccent;
-            }
-            return result;
-        }
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                const char = key.textContent;
 
-        function createKey(char) {
-            const button = document.createElement('div');
-            button.classList.add('key');
-            const displayChar = transliterate(char);
-            const latinChar = char;
-            button.innerHTML = `<span>${displayChar}</span><span class="latin">${latinChar}</span>`;
-            button.addEventListener('click', () => {
-                inputText.value += latinChar;
-                inputText.dispatchEvent(new Event('input'));
-                button.classList.add('blink');
-                setTimeout(() => button.classList.remove('blink'), 100);
-            });
-            return button;
-        }
-
-        function renderKeyboard() {
-            keyboard.innerHTML = '';
-            Object.keys(transliterationRules).forEach(key => {
-                if (key.toLowerCase() === key) {
-                    keyboard.appendChild(createKey(key));
+                if (char === 'Shift') {
+                    isShift = !isShift;
+                    key.classList.toggle('active');
+                } else if (char === 'Alt') {
+                    isAlt = !isAlt;
+                    key.classList.toggle('active');
+                } else if (char === '´') {
+                    isAcute = !isAcute;
+                    key.classList.toggle('active');
+                } else {
+                    let transliteratedChar = transliterate(char);
+                    textBox.value += transliteratedChar;
+                    isShift = false;
+                    isAlt = false;
+                    isAcute = false;
+                    document.querySelectorAll('.modifier').forEach(mod => mod.classList.remove('active'));
                 }
             });
-
-            const shiftKey = document.createElement('div');
-            shiftKey.classList.add('key', 'shift');
-            shiftKey.innerText = 'Shift';
-            shiftKey.addEventListener('click', () => {
-                isShiftActive = !isShiftActive;
-                renderKeyboard();
-                shiftKey.classList.add('blink');
-                setTimeout(() => shiftKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(shiftKey);
-
-            const altKey = document.createElement('div');
-            altKey.classList.add('key', 'alt');
-            altKey.innerText = 'Alt';
-            altKey.addEventListener('click', () => {
-                isAltActive = !isAltActive;
-                renderKeyboard();
-                altKey.classList.add('blink');
-                setTimeout(() => altKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(altKey);
-
-            const accentKey = document.createElement('div');
-            accentKey.classList.add('key', 'accent');
-            accentKey.innerText = '´';
-            accentKey.addEventListener('click', () => {
-                isAccentActive = !isAccentActive;
-                renderKeyboard();
-                accentKey.classList.add('blink');
-                setTimeout(() => accentKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(accentKey);
-        }
-
-        inputText.addEventListener('input', () => {
-            const chars = inputText.value.split('');
-            const transliteratedChars = chars.map(transliterate);
-            inputText.value = transliteratedChars.join('');
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Shift') {
-                isShiftActive = !isShiftActive;
-                renderKeyboard();
-                event.preventDefault();
-            } else if (event.key === 'Alt') {
-                isAltActive = !isAltActive;
-                renderKeyboard();
-                event.preventDefault();
-            } else if (event.key === '´' || event.key === 'Dead') {
-                isAccentActive = !isAccentActive;
-                renderKeyboard();
-                event.preventDefault();
-            } else if (event.key === 'Backspace') {
-                inputText.value = inputText.value.slice(0, -1);
-                event.preventDefault();
-            } else {
-                const key = event.key.toLowerCase();
-                inputText.value += transliterate(key);
-                inputText.dispatchEvent(new Event('input'));
-                event.preventDefault();
+        function transliterate(char) {
+            if (isShift) char = char.toUpperCase();
+            if (isAcute && 'aeiou'.includes(char)) {
+                char += '\u0301';
+                isAcute = false;
             }
-        });
-
-        renderKeyboard();
-
-        // Focus on the text box when the page loads
-        window.addEventListener('load', () => {
-            inputText.focus();
-        });
+            if (isAlt && altMap[char]) {
+                char = altMap[char];
+                isAlt = false;
+            } else if (translitMap[char.toLowerCase()]) {
+                char = translitMap[char.toLowerCase()];
+            }
+            return char;
+        }
     </script>
 </body>
 </html>
