@@ -46,7 +46,7 @@
         .key span {
             font-size: 14px;
         }
-        .key .transliterated {
+        .key .latin {
             font-size: 10px;
             position: absolute;
             bottom: 2px;
@@ -55,6 +55,9 @@
         }
         .key.shift {
             width: 80px;
+        }
+        .key.blink {
+            background-color: yellow;
         }
     </style>
 </head>
@@ -113,10 +116,15 @@
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
-            button.innerHTML = `<span>${char}</span><span class="transliterated">${transliterationRules[char]}</span>`;
+            const latinChar = Object.keys(transliterationRules).find(key => transliterationRules[key] === char);
+            button.innerHTML = `<span>${char}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
-                inputText.value += char;
+                inputText.value += latinChar;
                 inputText.dispatchEvent(new Event('input'));
+                isShiftActive = false;
+                renderKeyboard();
+                button.classList.add('blink');
+                setTimeout(() => button.classList.remove('blink'), 100);
             });
             return button;
         }
@@ -124,7 +132,7 @@
         function renderKeyboard() {
             keyboard.innerHTML = '';
             keys.forEach(key => {
-                const char = isShiftActive ? key.toUpperCase() : key;
+                const char = isShiftActive ? transliterationRules[key.toUpperCase()] : transliterationRules[key];
                 keyboard.appendChild(createKey(char));
             });
             const shiftKey = document.createElement('div');
