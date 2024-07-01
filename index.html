@@ -172,11 +172,11 @@
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Alt') {
+            if (event.code === 'AltLeft' || event.code === 'AltRight') {
                 isAltKeyDown = true;
             }
-            if (isAltKeyDown && (event.key === 'i' || event.key === 'I')) {
-                inputText.value += event.key === 'i' ? 'ї' : 'Ї';
+            if (isAltKeyDown && (event.code === 'KeyI')) {
+                inputText.value += event.shiftKey ? 'Ї' : 'ї';
                 inputText.dispatchEvent(new Event('input'));
                 isAltKeyDown = false;
                 event.preventDefault();
@@ -184,7 +184,7 @@
         });
 
         document.addEventListener('keyup', (event) => {
-            if (event.key === 'Alt') {
+            if (event.code === 'AltLeft' || event.code === 'AltRight') {
                 isAltKeyDown = false;
             }
         });
