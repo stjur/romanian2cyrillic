@@ -108,8 +108,17 @@
             'i': 'ї', 'I': 'Ї'
         };
 
-        const vowels = new Set(['а', 'е', 'и', 'ї', 'о', 'у', 'ѡ', 'ꙋ', 'ъ', 'ѫ', 'ꙟ']);
-        const combiningAcuteAccent = '\u0301';
+        const transliterationRulesAccent = {
+            'а': 'а́', 'А': 'А́',
+            'є': 'є́', 'Є': 'Є́',
+            'и': 'и́', 'И': 'И́',
+            'ї': 'ї́', 'Ї': 'Ї́',
+            'ѡ': 'ѡ́', 'Ѡ': 'Ѡ́',
+            'ꙋ': 'ꙋ́', 'Ꙋ': 'Ꙋ́',
+            'ъ': 'ъ́', 'Ъ': 'Ъ́',
+            'ѫ': 'ѫ́', 'Ѫ': 'Ѫ́',
+            'ꙟ': 'ꙟ́', 'Ꙟ': 'Ꙟ́'
+        };
 
         let currentRules = transliterationRulesDefault;
 
@@ -122,8 +131,8 @@
 
         function transliterate(text) {
             return text.split('').map(char => {
-                if (isAccentActive && vowels.has(currentRules[char])) {
-                    return currentRules[char] + combiningAcuteAccent;
+                if (isAccentActive && transliterationRulesAccent[currentRules[char]]) {
+                    return transliterationRulesAccent[currentRules[char]];
                 }
                 return currentRules[char] || char;
             }).join('');
@@ -132,8 +141,14 @@
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
+            let displayChar = char;
+            if (isAccentActive && transliterationRulesAccent[currentRules[char]]) {
+                displayChar = transliterationRulesAccent[currentRules[char]];
+            } else {
+                displayChar = isShiftActive ? currentRules[char.toUpperCase()] : currentRules[char];
+            }
             const latinChar = Object.keys(transliterationRulesDefault).find(key => transliterationRulesDefault[key] === char);
-            button.innerHTML = `<span>${char}</span><span class="latin">${latinChar}</span>`;
+            button.innerHTML = `<span>${displayChar}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
                 inputText.value += latinChar;
                 inputText.dispatchEvent(new Event('input'));
@@ -156,8 +171,7 @@
         function renderKeyboard() {
             keyboard.innerHTML = '';
             keys.forEach(key => {
-                const char = isShiftActive ? currentRules[key.toUpperCase()] : currentRules[key];
-                keyboard.appendChild(createKey(char));
+                keyboard.appendChild(createKey(key));
             });
             const shiftKey = document.createElement('div');
             shiftKey.classList.add('key', 'shift');
@@ -216,6 +230,11 @@
                 const key = event.key.toLowerCase();
                 if (currentRules[key] || currentRules[key.toUpperCase()]) {
                     blinkKey(document.getElementById(`key-${key}`));
+                }
+                if (isAccentActive && transliterationRulesAccent[currentRules[key]]) {
+                    blinkKey(document.getElementById(`key-${key}`));
+                    inputText.value += transliterationRulesAccent[currentRules[key]];
+                    inputText.dispatchEvent(new Event('input'));
                 }
             }
         });
