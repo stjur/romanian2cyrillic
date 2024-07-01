@@ -122,7 +122,7 @@
 
         let currentRules = transliterationRulesDefault;
 
-        const keys = Object.keys(currentRules).filter(char => char.toLowerCase() === char);
+        const keys = Object.keys(transliterationRulesDefault).filter(char => char.toLowerCase() === char);
 
         let isShiftActive = false;
         let isAltActive = false;
@@ -130,13 +130,17 @@
         let isAltKeyDown = false;
 
         function transliterate(text) {
-            return text.split('').map(char => currentRules[char] || char).join('');
+            if (isAccentActive) {
+                return text.split('').map(char => transliterationRulesAccent[char] || char).join('');
+            } else {
+                return text.split('').map(char => currentRules[char] || char).join('');
+            }
         }
 
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
-            const latinChar = Object.keys(currentRules).find(key => currentRules[key] === char);
+            const latinChar = Object.keys(transliterationRulesDefault).find(key => transliterationRulesDefault[key] === char);
             button.innerHTML = `<span>${char}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
                 inputText.value += latinChar;
@@ -191,7 +195,6 @@
             accentKey.innerText = '´';
             accentKey.addEventListener('click', () => {
                 isAccentActive = !isAccentActive;
-                currentRules = isAccentActive ? transliterationRulesAccent : transliterationRulesDefault;
                 renderKeyboard();
                 blinkKey(accentKey);
             });
