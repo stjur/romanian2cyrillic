@@ -53,7 +53,7 @@
             right: 2px;
             color: grey;
         }
-        .key.shift {
+        .key.shift, .key.alt {
             width: 80px;
         }
         .key.blink {
@@ -73,7 +73,7 @@
         const outputText = document.getElementById('outputText');
         const keyboard = document.getElementById('keyboard');
 
-        const transliterationRules = {
+        const transliterationRulesDefault = {
             'a': 'а', 'A': 'А',
             'b': 'б', 'B': 'Б',
             'c': 'ч', 'C': 'Ч',
@@ -105,18 +105,53 @@
             'ț': 'ц', 'Ț': 'Ц'
         };
 
-        const keys = Object.keys(transliterationRules).filter(char => char.toLowerCase() === char);
+        const transliterationRulesAlt = {
+            'a': 'а', 'A': 'А',
+            'b': 'б', 'B': 'Б',
+            'c': 'ц', 'C': 'Ц',
+            'd': 'д', 'D': 'Д',
+            'e': 'е', 'E': 'Е',
+            'f': 'ф', 'F': 'Ф',
+            'g': 'г', 'G': 'Г',
+            'h': 'ґ', 'H': 'Ґ',
+            'i': 'ї', 'I': 'Ї',
+            'j': 'й', 'J': 'Й',
+            'k': 'к', 'K': 'К',
+            'l': 'л', 'L': 'Л',
+            'm': 'м', 'M': 'М',
+            'n': 'н', 'N': 'Н',
+            'o': 'о', 'O': 'О',
+            'p': 'п', 'P': 'П',
+            'r': 'р', 'R': 'Р',
+            's': 'с', 'S': 'С',
+            't': 'т', 'T': 'Т',
+            'u': 'у', 'U': 'У',
+            'v': 'в', 'V': 'В',
+            'x': 'х', 'X': 'Х',
+            'y': 'и', 'Y': 'И',
+            'z': 'з', 'Z': 'З',
+            'î': 'і', 'Î': 'І',
+            'â': 'ґ', 'Â': 'Ґ',
+            'ă': 'я', 'Ă': 'Я',
+            'ș': 'ш', 'Ș': 'Ш',
+            'ț': 'щ', 'Ț': 'Щ'
+        };
+
+        let currentRules = transliterationRulesDefault;
+
+        const keys = Object.keys(currentRules).filter(char => char.toLowerCase() === char);
 
         let isShiftActive = false;
+        let isAltActive = false;
 
         function transliterate(text) {
-            return text.split('').map(char => transliterationRules[char] || char).join('');
+            return text.split('').map(char => currentRules[char] || char).join('');
         }
 
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
-            const latinChar = Object.keys(transliterationRules).find(key => transliterationRules[key] === char);
+            const latinChar = Object.keys(currentRules).find(key => currentRules[key] === char);
             button.innerHTML = `<span>${char}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
                 inputText.value += latinChar;
@@ -132,7 +167,7 @@
         function renderKeyboard() {
             keyboard.innerHTML = '';
             keys.forEach(key => {
-                const char = isShiftActive ? transliterationRules[key.toUpperCase()] : transliterationRules[key];
+                const char = isShiftActive ? currentRules[key.toUpperCase()] : currentRules[key];
                 keyboard.appendChild(createKey(char));
             });
             const shiftKey = document.createElement('div');
@@ -143,6 +178,16 @@
                 renderKeyboard();
             });
             keyboard.appendChild(shiftKey);
+
+            const altKey = document.createElement('div');
+            altKey.classList.add('key', 'alt');
+            altKey.innerText = 'Alt';
+            altKey.addEventListener('click', () => {
+                isAltActive = !isAltActive;
+                currentRules = isAltActive ? transliterationRulesAlt : transliterationRulesDefault;
+                renderKeyboard();
+            });
+            keyboard.appendChild(altKey);
         }
 
         inputText.addEventListener('input', () => {
