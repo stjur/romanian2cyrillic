@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Transliterator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        textarea {
+            width: 300px;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Transliterator</h1>
+        <textarea id="inputText" placeholder="Type here..."></textarea>
+        <div id="outputText"></div>
+    </div>
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+
+        inputText.addEventListener('input', () => {
+            const transliteratedText = transliterate(inputText.value);
+            outputText.textContent = transliteratedText;
+        });
+
+        function transliterate(text) {
+            // Simple example of transliteration: replace 'a' with 'α'
+            return text.replace(/a/g, 'α');
+        }
+    </script>
+</body>
+</html>
