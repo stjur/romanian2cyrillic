@@ -53,6 +53,9 @@
             right: 2px;
             color: grey;
         }
+        .key.shift {
+            width: 80px;
+        }
     </style>
 </head>
 <body>
@@ -101,8 +104,37 @@
 
         const keys = Object.keys(transliterationRules).filter(char => char.toLowerCase() === char);
 
+        let isShiftActive = false;
+
         function transliterate(text) {
             return text.split('').map(char => transliterationRules[char] || char).join('');
+        }
+
+        function createKey(char) {
+            const button = document.createElement('div');
+            button.classList.add('key');
+            button.innerHTML = `<span>${char}</span><span class="transliterated">${transliterationRules[char]}</span>`;
+            button.addEventListener('click', () => {
+                inputText.value += char;
+                inputText.dispatchEvent(new Event('input'));
+            });
+            return button;
+        }
+
+        function renderKeyboard() {
+            keyboard.innerHTML = '';
+            keys.forEach(key => {
+                const char = isShiftActive ? key.toUpperCase() : key;
+                keyboard.appendChild(createKey(char));
+            });
+            const shiftKey = document.createElement('div');
+            shiftKey.classList.add('key', 'shift');
+            shiftKey.innerText = 'Shift';
+            shiftKey.addEventListener('click', () => {
+                isShiftActive = !isShiftActive;
+                renderKeyboard();
+            });
+            keyboard.appendChild(shiftKey);
         }
 
         inputText.addEventListener('input', () => {
@@ -110,16 +142,7 @@
             outputText.textContent = transliteratedText;
         });
 
-        keys.forEach(key => {
-            const button = document.createElement('div');
-            button.classList.add('key');
-            button.innerHTML = `<span>${key}</span><span class="transliterated">${transliterationRules[key]}</span>`;
-            button.addEventListener('click', () => {
-                inputText.value += key;
-                inputText.dispatchEvent(new Event('input'));
-            });
-            keyboard.appendChild(button);
-        });
+        renderKeyboard();
     </script>
 </body>
 </html>
