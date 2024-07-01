@@ -40,8 +40,13 @@
         });
 
         function transliterate(text) {
-            // Simple example of transliteration: replace 'a' with 'α'
-            return text.replace(/a/g, 'α');
+            const rules = {
+                'a': 'α',
+                'b': 'β',
+                'c': 'γ',
+            // Add more rules as needed
+            };
+        return text.split('').map(char => rules[char] || char).join('');
         }
     </script>
 </body>
