@@ -53,7 +53,7 @@
             right: 2px;
             color: grey;
         }
-        .key.shift, .key.alt {
+        .key.shift, .key.alt, .key.accent {
             width: 80px;
         }
         .key.blink {
@@ -108,12 +108,23 @@
             'i': 'ї', 'I': 'Ї'
         };
 
+        const transliterationRulesAccent = {
+            'а': 'а́', 'А': 'А́',
+            'е': 'є́', 'Е': 'Є́',
+            'и': 'и́', 'И': 'И́',
+            'о': 'о́', 'О': 'О́',
+            'у': 'у́', 'У': 'У́',
+            'ѡ': 'ѡ́', 'Ѡ': 'Ѡ́',
+            'ꙋ': 'ꙋ́', 'Ꙋ': 'Ꙋ́'
+        };
+
         let currentRules = transliterationRulesDefault;
 
         const keys = Object.keys(currentRules).filter(char => char.toLowerCase() === char);
 
         let isShiftActive = false;
         let isAltActive = false;
+        let isAccentActive = false;
         let isAltKeyDown = false;
 
         function transliterate(text) {
@@ -130,6 +141,7 @@
                 inputText.dispatchEvent(new Event('input'));
                 isShiftActive = false;
                 isAltActive = false;
+                isAccentActive = false;
                 currentRules = transliterationRulesDefault;
                 renderKeyboard();
                 blinkKey(button);
@@ -171,6 +183,18 @@
             });
             altKey.id = 'key-Alt';
             keyboard.appendChild(altKey);
+
+            const accentKey = document.createElement('div');
+            accentKey.classList.add('key', 'accent');
+            accentKey.innerText = '´';
+            accentKey.addEventListener('click', () => {
+                isAccentActive = !isAccentActive;
+                currentRules = isAccentActive ? transliterationRulesAccent : transliterationRulesDefault;
+                renderKeyboard();
+                blinkKey(accentKey);
+            });
+            accentKey.id = 'key-Accent';
+            keyboard.appendChild(accentKey);
         }
 
         inputText.addEventListener('input', () => {
