@@ -186,6 +186,7 @@
             if (isAltKeyDown && (event.code === 'KeyI')) {
                 inputText.value += event.shiftKey ? 'Ї' : 'ї';
                 inputText.dispatchEvent(new Event('input'));
+                blinkKey(document.getElementById('key-i'));
                 isAltKeyDown = false;
                 event.preventDefault();
             } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
