@@ -198,16 +198,23 @@
             if (event.key === 'Shift') {
                 isShiftActive = !isShiftActive;
                 renderKeyboard();
+                event.preventDefault();
             } else if (event.key === 'Alt') {
                 isAltActive = !isAltActive;
                 renderKeyboard();
-            } else if (event.key === '´') {
+                event.preventDefault();
+            } else if (event.key === '´' || event.key === 'Dead') {
                 isAccentActive = !isAccentActive;
                 renderKeyboard();
+                event.preventDefault();
+            } else if (event.key === 'Backspace') {
+                inputText.value = inputText.value.slice(0, -1);
+                event.preventDefault();
             } else {
                 const key = event.key.toLowerCase();
-                inputText.value += transliterate(event.key);
+                inputText.value += transliterate(key);
                 inputText.dispatchEvent(new Event('input'));
+                event.preventDefault();
             }
         });
 
