@@ -108,17 +108,8 @@
             'i': 'ї', 'I': 'Ї'
         };
 
-        const transliterationRulesAccent = {
-            'а': 'а́', 'А': 'А́',
-            'є': 'є́', 'Є': 'Є́',
-            'и': 'и́', 'И': 'И́',
-            'ї': 'ї́', 'Ї': 'Ї́',
-            'ѡ': 'ѡ́', 'Ѡ': 'Ѡ́',
-            'ꙋ': 'ꙋ́', 'Ꙋ': 'Ꙋ́',
-            'ъ': 'ъ́', 'Ъ': 'Ъ́',
-            'ѫ': 'ѫ́', 'Ѫ': 'Ѫ́',
-            'ꙟ': 'ꙟ́', 'Ꙟ': 'Ꙟ́'
-        };
+        const vowels = new Set(['а', 'е', 'и', 'ї', 'о', 'у', 'ѡ', 'ꙋ', 'ъ', 'ѫ', 'ꙟ']);
+        const combiningAcuteAccent = '\u0301';
 
         let currentRules = transliterationRulesDefault;
 
@@ -130,11 +121,12 @@
         let isAltKeyDown = false;
 
         function transliterate(text) {
-            if (isAccentActive) {
-                return text.split('').map(char => transliterationRulesAccent[char] || char).join('');
-            } else {
-                return text.split('').map(char => currentRules[char] || char).join('');
-            }
+            return text.split('').map(char => {
+                if (isAccentActive && vowels.has(currentRules[char])) {
+                    return currentRules[char] + combiningAcuteAccent;
+                }
+                return currentRules[char] || char;
+            }).join('');
         }
 
         function createKey(char) {
