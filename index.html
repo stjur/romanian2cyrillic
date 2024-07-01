@@ -116,26 +116,29 @@
         let isAccentActive = false;
 
         function transliterate(char) {
-            if (isAccentActive && vowels.has(transliterationRules[char])) {
-                return transliterationRules[char] + combiningAcuteAccent;
-            }
-            if (isAltActive) {
-                return transliterationRulesAlt[char] || char;
-            }
+            let result = char;
             if (isShiftActive) {
-                return transliterationRules[char.toUpperCase()] || char;
+                result = result.toUpperCase();
             }
-            return transliterationRules[char] || char;
+            if (isAltActive && transliterationRulesAlt[result]) {
+                result = transliterationRulesAlt[result];
+            } else if (transliterationRules[result]) {
+                result = transliterationRules[result];
+            }
+            if (isAccentActive && vowels.has(result)) {
+                result = result + combiningAcuteAccent;
+            }
+            return result;
         }
 
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
-            let displayChar = transliterate(char);
+            const displayChar = transliterate(char);
             const latinChar = char;
             button.innerHTML = `<span>${displayChar}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
-                inputText.value += char;
+                inputText.value += latinChar;
                 inputText.dispatchEvent(new Event('input'));
                 button.classList.add('blink');
                 setTimeout(() => button.classList.remove('blink'), 100);
