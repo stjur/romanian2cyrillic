@@ -65,12 +65,10 @@
     <div class="container">
         <h1>Real-Time Transliterator</h1>
         <textarea id="inputText" placeholder="Type here..."></textarea>
-        <div id="outputText"></div>
     </div>
     <div class="keyboard" id="keyboard"></div>
     <script>
         const inputText = document.getElementById('inputText');
-        const outputText = document.getElementById('outputText');
         const keyboard = document.getElementById('keyboard');
 
         const transliterationRulesDefault = {
@@ -85,7 +83,7 @@
             'i': 'и', 'I': 'И',
             'j': 'џ', 'J': 'Џ',
             'k': 'к', 'K': 'К',
-            'l': 'ʌ', 'L': 'Ɔ',
+            'l': 'ʌ', 'L': 'ʌ',
             'm': 'м', 'M': 'М',
             'n': 'н', 'N': 'Н',
             'o': 'ѡ', 'O': 'Ѡ',
@@ -134,10 +132,15 @@
                 isAltActive = false;
                 currentRules = transliterationRulesDefault;
                 renderKeyboard();
-                button.classList.add('blink');
-                setTimeout(() => button.classList.remove('blink'), 100);
+                blinkKey(button);
             });
+            button.id = `key-${latinChar}`;
             return button;
+        }
+
+        function blinkKey(button) {
+            button.classList.add('blink');
+            setTimeout(() => button.classList.remove('blink'), 100);
         }
 
         function renderKeyboard() {
@@ -152,7 +155,9 @@
             shiftKey.addEventListener('click', () => {
                 isShiftActive = !isShiftActive;
                 renderKeyboard();
+                blinkKey(shiftKey);
             });
+            shiftKey.id = 'key-Shift';
             keyboard.appendChild(shiftKey);
 
             const altKey = document.createElement('div');
@@ -162,24 +167,34 @@
                 isAltActive = !isAltActive;
                 currentRules = isAltActive ? transliterationRulesAlt : transliterationRulesDefault;
                 renderKeyboard();
+                blinkKey(altKey);
             });
+            altKey.id = 'key-Alt';
             keyboard.appendChild(altKey);
         }
 
         inputText.addEventListener('input', () => {
             const transliteratedText = transliterate(inputText.value);
-            outputText.textContent = transliteratedText;
+            inputText.value = transliteratedText;
         });
 
         document.addEventListener('keydown', (event) => {
             if (event.code === 'AltLeft' || event.code === 'AltRight') {
                 isAltKeyDown = true;
+                blinkKey(document.getElementById('key-Alt'));
             }
             if (isAltKeyDown && (event.code === 'KeyI')) {
                 inputText.value += event.shiftKey ? 'Ї' : 'ї';
                 inputText.dispatchEvent(new Event('input'));
                 isAltKeyDown = false;
                 event.preventDefault();
+            } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+                blinkKey(document.getElementById('key-Shift'));
+            } else {
+                const key = event.key.toLowerCase();
+                if (currentRules[key] || currentRules[key.toUpperCase()]) {
+                    blinkKey(document.getElementById(`key-${key}`));
+                }
             }
         });
 
