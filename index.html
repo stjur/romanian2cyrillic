@@ -8,6 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -16,11 +17,41 @@
         }
         .container {
             text-align: center;
+            margin-bottom: 20px;
         }
         textarea {
             width: 300px;
             height: 150px;
             margin-bottom: 20px;
+        }
+        .keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+        .key {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: white;
+            position: relative;
+        }
+        .key span {
+            font-size: 14px;
+        }
+        .key .transliterated {
+            font-size: 10px;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            color: grey;
         }
     </style>
 </head>
@@ -30,50 +61,65 @@
         <textarea id="inputText" placeholder="Type here..."></textarea>
         <div id="outputText"></div>
     </div>
+    <div class="keyboard" id="keyboard"></div>
     <script>
         const inputText = document.getElementById('inputText');
         const outputText = document.getElementById('outputText');
+        const keyboard = document.getElementById('keyboard');
+
+        const transliterationRules = {
+            'a': 'а', 'A': 'А',
+            'b': 'б', 'B': 'Б',
+            'c': 'ч', 'C': 'Ч',
+            'd': 'д', 'D': 'Д',
+            'e': 'є', 'E': 'Є',
+            'f': 'ф', 'F': 'Ф',
+            'g': 'г', 'G': 'Г',
+            'h': 'х', 'H': 'Х',
+            'i': 'и', 'I': 'И',
+            'j': 'џ', 'J': 'Џ',
+            'k': 'к', 'K': 'К',
+            'l': 'ʌ', 'L': 'Ɔ',
+            'm': 'м', 'M': 'М',
+            'n': 'н', 'N': 'Н',
+            'o': 'ѡ', 'O': 'Ѡ',
+            'p': 'п', 'P': 'П',
+            'r': 'р', 'R': 'Р',
+            's': 'с', 'S': 'С',
+            't': 'т', 'T': 'Т',
+            'u': 'ꙋ', 'U': 'Ꙋ',
+            'v': 'в', 'V': 'В',
+            'x': 'ѯ', 'X': 'Ѯ',
+            'y': 'ѵ', 'Y': 'Ѵ',
+            'z': 'з', 'Z': 'З',
+            'î': 'ꙟ', 'Î': 'Ꙟ',
+            'â': 'ѫ', 'Â': 'Ѫ',
+            'ă': 'ъ', 'Ă': 'Ъ',
+            'ș': 'ш', 'Ș': 'Ш',
+            'ț': 'ц', 'Ț': 'Ц'
+        };
+
+        const keys = Object.keys(transliterationRules).filter(char => char.toLowerCase() === char);
+
+        function transliterate(text) {
+            return text.split('').map(char => transliterationRules[char] || char).join('');
+        }
 
         inputText.addEventListener('input', () => {
             const transliteratedText = transliterate(inputText.value);
             outputText.textContent = transliteratedText;
         });
 
-        function transliterate(text) {
-            const rules = {
-                'a': 'а', 'A': 'А',
-                'b': 'б', 'B': 'Б',
-                'c': 'ч', 'C': 'Ч',
-                'd': 'д', 'D': 'Д',
-                'e': 'є', 'E': 'Є',
-                'f': 'ф', 'F': 'Ф',
-                'g': 'г', 'G': 'Г',
-                'h': 'х', 'H': 'Х',
-                'i': 'и', 'I': 'И',
-                'j': 'џ', 'J': 'Џ',
-                'k': 'к', 'K': 'К',
-                'l': 'ʌ', 'L': 'Ɔ',
-                'm': 'м', 'M': 'М',
-                'n': 'н', 'N': 'Н',
-                'o': 'ѡ', 'O': 'Ѡ',
-                'p': 'п', 'P': 'П',
-                'r': 'р', 'R': 'Р',
-                's': 'с', 'S': 'С',
-                't': 'т', 'T': 'Т',
-                'u': 'ꙋ', 'U': 'Ꙋ',
-                'v': 'в', 'V': 'В',
-                'x': 'ѯ', 'X': 'Ѯ',
-                'y': 'ѵ', 'Y': 'Ѵ',
-                'z': 'з', 'Z': 'З',
-                'î': 'ꙟ', 'Î': 'Ꙟ',
-                'â': 'ѫ', 'Â': 'Ѫ',
-                'ă': 'ъ', 'Ă': 'Ъ',
-                'ș': 'ш', 'Ș': 'Ш',
-                'ț': 'ц', 'Ț': 'Ц'
-            // Add more rules as needed
-            };
-        return text.split('').map(char => rules[char] || char).join('');
-        }
+        keys.forEach(key => {
+            const button = document.createElement('div');
+            button.classList.add('key');
+            button.innerHTML = `<span>${key}</span><span class="transliterated">${transliterationRules[key]}</span>`;
+            button.addEventListener('click', () => {
+                inputText.value += key;
+                inputText.dispatchEvent(new Event('input'));
+            });
+            keyboard.appendChild(button);
+        });
     </script>
 </body>
 </html>
