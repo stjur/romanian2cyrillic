@@ -89,6 +89,7 @@
         };
 
         const altMap = {'i': 'ї'};
+        const accentableVowels = new Set(['а', 'є', 'и', 'ѡ', 'ꙋ', 'ꙟ', 'ѫ', 'ъ', 'ї']);
 
         let isShift = false;
         let isAlt = false;
@@ -154,11 +155,10 @@
         }
 
         function transliterate(char) {
-            if (isAcute && 'aeiou'.includes(char)) {
-                char += '\u0301';
+            if (isAcute && accentableVowels.has(translitMap[char.toLowerCase()])) {
+                char = translitMap[char.toLowerCase()] + '\u0301';
                 isAcute = false;
-            }
-            if (isAlt && altMap[char]) {
+            } else if (isAlt && altMap[char]) {
                 char = altMap[char];
                 isAlt = false;
             } else if (translitMap[char.toLowerCase()]) {
