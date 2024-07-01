@@ -36,6 +36,9 @@
             grid-column: span 2;
             background-color: #f0f0f0;
         }
+        .active {
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +94,7 @@
 
         const textBox = document.getElementById('textBox');
         const keys = document.querySelectorAll('.key');
+        const modifiers = document.querySelectorAll('.modifier');
 
         keys.forEach(key => {
             key.addEventListener('click', () => {
@@ -99,25 +103,54 @@
                 if (char === 'Shift') {
                     isShift = !isShift;
                     key.classList.toggle('active');
+                    updateKeys();
                 } else if (char === 'Alt') {
                     isAlt = !isAlt;
                     key.classList.toggle('active');
+                    updateKeys();
                 } else if (char === '´') {
                     isAcute = !isAcute;
                     key.classList.toggle('active');
                 } else {
                     let transliteratedChar = transliterate(char);
                     textBox.value += transliteratedChar;
-                    isShift = false;
-                    isAlt = false;
-                    isAcute = false;
-                    document.querySelectorAll('.modifier').forEach(mod => mod.classList.remove('active'));
+                    resetModifiers();
                 }
             });
         });
 
+        textBox.addEventListener('keypress', (event) => {
+            let char = event.key;
+            if (event.shiftKey) char = char.toUpperCase();
+            const transliteratedChar = transliterate(char);
+            textBox.value += transliteratedChar;
+            event.preventDefault();
+        });
+
+        function updateKeys() {
+            keys.forEach(key => {
+                const char = key.textContent.toLowerCase();
+                if (char in translitMap) {
+                    if (isAlt && altMap[char]) {
+                        key.textContent = altMap[char];
+                    } else if (isShift) {
+                        key.textContent = translitMap[char].toUpperCase();
+                    } else {
+                        key.textContent = translitMap[char];
+                    }
+                }
+            });
+        }
+
+        function resetModifiers() {
+            isShift = false;
+            isAlt = false;
+            isAcute = false;
+            modifiers.forEach(mod => mod.classList.remove('active'));
+            updateKeys();
+        }
+
         function transliterate(char) {
-            if (isShift) char = char.toUpperCase();
             if (isAcute && 'aeiou'.includes(char)) {
                 char += '\u0301';
                 isAcute = false;
@@ -127,6 +160,10 @@
                 isAlt = false;
             } else if (translitMap[char.toLowerCase()]) {
                 char = translitMap[char.toLowerCase()];
+            }
+            if (isShift) {
+                char = char.toUpperCase();
+                isShift = false;
             }
             return char;
         }
