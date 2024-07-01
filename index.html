@@ -64,7 +64,7 @@
 <body>
     <div class="container">
         <h1>Real-Time Transliterator</h1>
-        <textarea id="inputText" placeholder="Type here..."></textarea>
+        <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
     </div>
     <div class="keyboard" id="keyboard"></div>
     <script>
@@ -83,7 +83,7 @@
             'i': 'и', 'I': 'И',
             'j': 'џ', 'J': 'Џ',
             'k': 'к', 'K': 'К',
-            'l': 'ʌ', 'L': 'ʌ',
+            'l': 'ʌ', 'L': 'Ʌ',
             'm': 'м', 'M': 'М',
             'n': 'н', 'N': 'Н',
             'o': 'ѡ', 'O': 'Ѡ',
@@ -206,6 +206,11 @@
         });
 
         renderKeyboard();
+
+        // Focus on the text box when the page loads
+        window.addEventListener('load', () => {
+            inputText.focus();
+        });
     </script>
 </body>
 </html>
