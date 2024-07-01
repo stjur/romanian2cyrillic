@@ -116,6 +116,7 @@
 
         let isShiftActive = false;
         let isAltActive = false;
+        let isAltKeyDown = false;
 
         function transliterate(text) {
             return text.split('').map(char => currentRules[char] || char).join('');
@@ -168,6 +169,24 @@
         inputText.addEventListener('input', () => {
             const transliteratedText = transliterate(inputText.value);
             outputText.textContent = transliteratedText;
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Alt') {
+                isAltKeyDown = true;
+            }
+            if (isAltKeyDown && (event.key === 'i' || event.key === 'I')) {
+                inputText.value += event.key === 'i' ? 'ї' : 'Ї';
+                inputText.dispatchEvent(new Event('input'));
+                isAltKeyDown = false;
+                event.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'Alt') {
+                isAltKeyDown = false;
+            }
         });
 
         renderKeyboard();
