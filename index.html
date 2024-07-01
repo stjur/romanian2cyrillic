@@ -108,54 +108,34 @@
             'i': 'ї', 'I': 'Ї'
         };
 
-        const transliterationRulesAccent = {
-            'а': 'а́', 'А': 'А́',
-            'є': 'є́', 'Є': 'Є́',
-            'и': 'и́', 'И': 'И́',
-            'ї': 'ї́', 'Ї': 'Ї́',
-            'ѡ': 'ѡ́', 'Ѡ': 'Ѡ́',
-            'ꙋ': 'ꙋ́', 'Ꙋ': 'Ꙋ́',
-            'ъ': 'ъ́', 'Ъ': 'Ъ́',
-            'ѫ': 'ѫ́', 'Ѫ': 'Ѫ́',
-            'ꙟ': 'ꙟ́', 'Ꙟ': 'Ꙟ́'
-        };
+        const vowels = new Set(['а', 'є', 'и', 'ї', 'ѡ', 'ꙋ', 'ъ', 'ѫ', 'ꙟ']);
+        const combiningAcuteAccent = '\u0301';
 
         let isShiftActive = false;
         let isAltActive = false;
         let isAccentActive = false;
 
-        function transliterate(text) {
-            return text.split('').map(char => {
-                if (isAccentActive && transliterationRulesAccent[char]) {
-                    return transliterationRulesAccent[char];
-                }
-                if (isAltActive) {
-                    return transliterationRulesAlt[char] || char;
-                }
-                if (isShiftActive) {
-                    return transliterationRules[char.toUpperCase()] || char;
-                }
-                return transliterationRules[char] || char;
-            }).join('');
+        function transliterate(char) {
+            if (isAccentActive && vowels.has(transliterationRules[char])) {
+                return transliterationRules[char] + combiningAcuteAccent;
+            }
+            if (isAltActive) {
+                return transliterationRulesAlt[char] || char;
+            }
+            if (isShiftActive) {
+                return transliterationRules[char.toUpperCase()] || char;
+            }
+            return transliterationRules[char] || char;
         }
 
         function createKey(char) {
             const button = document.createElement('div');
             button.classList.add('key');
-            let displayChar = transliterationRules[char];
-            if (isShiftActive) {
-                displayChar = transliterationRules[char.toUpperCase()];
-            }
-            if (isAltActive) {
-                displayChar = transliterationRulesAlt[char];
-            }
-            if (isAccentActive && transliterationRulesAccent[displayChar]) {
-                displayChar = transliterationRulesAccent[displayChar];
-            }
+            let displayChar = transliterate(char);
             const latinChar = char;
             button.innerHTML = `<span>${displayChar}</span><span class="latin">${latinChar}</span>`;
             button.addEventListener('click', () => {
-                inputText.value += latinChar;
+                inputText.value += char;
                 inputText.dispatchEvent(new Event('input'));
                 button.classList.add('blink');
                 setTimeout(() => button.classList.remove('blink'), 100);
@@ -206,8 +186,9 @@
         }
 
         inputText.addEventListener('input', () => {
-            const transliteratedText = transliterate(inputText.value);
-            inputText.value = transliteratedText;
+            const chars = inputText.value.split('');
+            const transliteratedChars = chars.map(transliterate);
+            inputText.value = transliteratedChars.join('');
         });
 
         document.addEventListener('keydown', (event) => {
@@ -222,10 +203,8 @@
                 renderKeyboard();
             } else {
                 const key = event.key.toLowerCase();
-                if (currentRules[key] || currentRules[key.toUpperCase()]) {
-                    inputText.value += transliterate(event.key);
-                    inputText.dispatchEvent(new Event('input'));
-                }
+                inputText.value += transliterate(event.key);
+                inputText.dispatchEvent(new Event('input'));
             }
         });
 
