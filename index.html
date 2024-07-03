@@ -54,11 +54,7 @@
             color: grey;
         }
         .key.modifier {
-            width: 60px;
-            background-color: lightgrey;
-        }
-        .key.modifier.active {
-            background-color: grey;
+            width: 80px;
         }
         .key.blink {
             background-color: yellow;
@@ -186,7 +182,7 @@
             layout.forEach(key => {
                 if (key === 'shift') {
                     const shiftKey = document.createElement('div');
-                    shiftKey.classList.add('key', 'modifier', isShiftActive ? 'active' : '');
+                    shiftKey.classList.add('key', 'modifier');
                     shiftKey.innerText = 'Shift';
                     shiftKey.addEventListener('click', () => {
                         isShiftActive = !isShiftActive;
@@ -197,7 +193,7 @@
                     keyboard.appendChild(shiftKey);
                 } else if (key === 'alt') {
                     const altKey = document.createElement('div');
-                    altKey.classList.add('key', 'modifier', isAltActive ? 'active' : '');
+                    altKey.classList.add('key', 'modifier');
                     altKey.innerText = 'Alt';
                     altKey.addEventListener('click', () => {
                         isAltActive = !isAltActive;
@@ -208,7 +204,7 @@
                     keyboard.appendChild(altKey);
                 } else if (key === '´') {
                     const accentKey = document.createElement('div');
-                    accentKey.classList.add('key', 'modifier', isAccentActive ? 'active' : '');
+                    accentKey.classList.add('key', 'modifier');
                     accentKey.innerText = '´';
                     accentKey.addEventListener('click', () => {
                         isAccentActive = !isAccentActive;
@@ -220,7 +216,7 @@
                     keyboard.appendChild(accentKey);
                 } else if (key === '`') {
                     const graveAccentKey = document.createElement('div');
-                    graveAccentKey.classList.add('key', 'modifier', isGraveAccentActive ? 'active' : '');
+                    graveAccentKey.classList.add('key', 'modifier');
                     graveAccentKey.innerText = '`';
                     graveAccentKey.addEventListener('click', () => {
                         isGraveAccentActive = !isGraveAccentActive;
