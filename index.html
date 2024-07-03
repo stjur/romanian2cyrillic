@@ -198,7 +198,12 @@
 
         inputText.addEventListener('input', () => {
             const chars = inputText.value.split('');
-            const transliteratedChars = chars.map(transliterate);
+            const transliteratedChars = chars.map((char, index) => {
+                if (index === chars.length - 1) {
+                    return transliterate(char);
+                }
+                return transliterationRules[char] || char;
+            });
             inputText.value = transliteratedChars.join('');
         });
 
