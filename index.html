@@ -206,6 +206,7 @@
             accentKey.innerText = '´';
             accentKey.addEventListener('click', () => {
                 isAccentActive = !isAccentActive;
+                isGraveAccentActive = false;
                 renderKeyboard();
                 accentKey.classList.add('blink');
                 setTimeout(() => accentKey.classList.remove('blink'), 100);
@@ -217,6 +218,7 @@
             graveAccentKey.innerText = '`';
             graveAccentKey.addEventListener('click', () => {
                 isGraveAccentActive = !isGraveAccentActive;
+                isAccentActive = false;
                 renderKeyboard();
                 graveAccentKey.classList.add('blink');
                 setTimeout(() => graveAccentKey.classList.remove('blink'), 100);
@@ -246,10 +248,12 @@
                 event.preventDefault();
             } else if (event.key === '´' || event.key === 'Dead') {
                 isAccentActive = !isAccentActive;
+                isGraveAccentActive = false;
                 renderKeyboard();
                 event.preventDefault();
             } else if (event.key === '`') {
                 isGraveAccentActive = !isGraveAccentActive;
+                isAccentActive = false;
                 renderKeyboard();
                 event.preventDefault();
             } else if (event.key === 'Backspace') {
