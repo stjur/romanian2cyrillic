@@ -59,16 +59,27 @@
         .key.blink {
             background-color: yellow;
         }
+        .copy-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: lightblue;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Real-Time Transliterator</h1>
         <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
+        <button class="copy-button" id="copyButton">Copy</button>
     </div>
     <div class="keyboard" id="keyboard"></div>
     <script>
         const inputText = document.getElementById('inputText');
+        const copyButton = document.getElementById('copyButton');
         const keyboard = document.getElementById('keyboard');
 
         const transliterationRules = {
@@ -276,6 +287,13 @@
         });
 
         renderKeyboard();
+
+        // Copy button functionality
+        copyButton.addEventListener('click', () => {
+            inputText.select();
+            document.execCommand('copy');
+            alert('Text copied to clipboard!');
+        });
 
         // Focus on the text box when the page loads
         window.addEventListener('load', () => {
