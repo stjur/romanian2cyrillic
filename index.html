@@ -24,35 +24,13 @@
             height: 150px;
             margin-bottom: 10px;
         }
-        .button-container {
-            display: flex;
-            width: 300px;
-            margin-top: 10px;
-        }
-        .copy-button, .delete-button {
-            flex: 1;
-            height: 40px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            background-color: lightblue;
-            font-size: 16px;
-        }
-        .copy-button:active, .delete-button:active {
-            background-color: yellow;
-        }
         .keyboard {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             max-width: 600px;
         }
-        .key {
-            width: 40px;
+        .key, .copy-button, .delete-button {
             height: 40px;
             margin: 5px;
             border: 1px solid #ccc;
@@ -63,6 +41,9 @@
             cursor: pointer;
             background-color: white;
             position: relative;
+        }
+        .key {
+            width: 40px;
         }
         .key span {
             font-size: 14px;
@@ -77,8 +58,14 @@
         .key.modifier {
             width: 60px;
         }
-        .key.blink {
+        .key.blink, .copy-button:active, .delete-button:active {
             background-color: yellow;
+        }
+        .copy-button, .delete-button {
+            width: 145px;
+            margin-top: 10px;
+            font-size: 16px;
+            background-color: lightblue;
         }
     </style>
 </head>
@@ -86,7 +73,7 @@
     <div class="container">
         <h1>Real-Time Transliterator</h1>
         <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
-        <div class="button-container">
+        <div style="display: flex; justify-content: space-between; width: 300px;">
             <button class="copy-button" id="copyButton">Copy</button>
             <button class="delete-button" id="deleteButton">Delete</button>
         </div>
@@ -162,7 +149,7 @@
                 result = result.toUpperCase();
             }
             if (isAltActive) {
-                result = transliterationRulesAlt[result] || result;
+                result = transliterationRulesAlt[result] || transliterationRules[result] || result;
             } else {
                 result = transliterationRules[result] || result;
             }
@@ -294,7 +281,11 @@
                 event.preventDefault();
             } else {
                 const key = event.key.toLowerCase();
-                inputText.value += transliterate(key);
+                if (event.altKey) {
+                    inputText.value += transliterate(key);
+                } else {
+                    inputText.value += transliterate(key);
+                }
                 inputText.dispatchEvent(new Event('input'));
                 resetModifiers();
                 renderKeyboard();
