@@ -54,7 +54,11 @@
             color: grey;
         }
         .key.modifier {
-            width: 80px;
+            width: 60px;
+            background-color: lightgrey;
+        }
+        .key.modifier.active {
+            background-color: grey;
         }
         .key.blink {
             background-color: yellow;
@@ -173,57 +177,63 @@
 
         function renderKeyboard() {
             keyboard.innerHTML = '';
-            Object.keys(transliterationRules).forEach(key => {
-                if (key.toLowerCase() === key) {
+            const layout = [
+                'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'ă', 'î',
+                'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ș', 'ț', 'â',
+                'z', 'x', 'c', 'v', 'b', 'n', 'm', 'shift', 'alt', '´', '`'
+            ];
+
+            layout.forEach(key => {
+                if (key === 'shift') {
+                    const shiftKey = document.createElement('div');
+                    shiftKey.classList.add('key', 'modifier', isShiftActive ? 'active' : '');
+                    shiftKey.innerText = 'Shift';
+                    shiftKey.addEventListener('click', () => {
+                        isShiftActive = !isShiftActive;
+                        renderKeyboard();
+                        shiftKey.classList.add('blink');
+                        setTimeout(() => shiftKey.classList.remove('blink'), 100);
+                    });
+                    keyboard.appendChild(shiftKey);
+                } else if (key === 'alt') {
+                    const altKey = document.createElement('div');
+                    altKey.classList.add('key', 'modifier', isAltActive ? 'active' : '');
+                    altKey.innerText = 'Alt';
+                    altKey.addEventListener('click', () => {
+                        isAltActive = !isAltActive;
+                        renderKeyboard();
+                        altKey.classList.add('blink');
+                        setTimeout(() => altKey.classList.remove('blink'), 100);
+                    });
+                    keyboard.appendChild(altKey);
+                } else if (key === '´') {
+                    const accentKey = document.createElement('div');
+                    accentKey.classList.add('key', 'modifier', isAccentActive ? 'active' : '');
+                    accentKey.innerText = '´';
+                    accentKey.addEventListener('click', () => {
+                        isAccentActive = !isAccentActive;
+                        isGraveAccentActive = false;
+                        renderKeyboard();
+                        accentKey.classList.add('blink');
+                        setTimeout(() => accentKey.classList.remove('blink'), 100);
+                    });
+                    keyboard.appendChild(accentKey);
+                } else if (key === '`') {
+                    const graveAccentKey = document.createElement('div');
+                    graveAccentKey.classList.add('key', 'modifier', isGraveAccentActive ? 'active' : '');
+                    graveAccentKey.innerText = '`';
+                    graveAccentKey.addEventListener('click', () => {
+                        isGraveAccentActive = !isGraveAccentActive;
+                        isAccentActive = false;
+                        renderKeyboard();
+                        graveAccentKey.classList.add('blink');
+                        setTimeout(() => graveAccentKey.classList.remove('blink'), 100);
+                    });
+                    keyboard.appendChild(graveAccentKey);
+                } else {
                     keyboard.appendChild(createKey(key));
                 }
             });
-
-            const shiftKey = document.createElement('div');
-            shiftKey.classList.add('key', 'modifier');
-            shiftKey.innerText = 'Shift';
-            shiftKey.addEventListener('click', () => {
-                isShiftActive = !isShiftActive;
-                renderKeyboard();
-                shiftKey.classList.add('blink');
-                setTimeout(() => shiftKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(shiftKey);
-
-            const altKey = document.createElement('div');
-            altKey.classList.add('key', 'modifier');
-            altKey.innerText = 'Alt';
-            altKey.addEventListener('click', () => {
-                isAltActive = !isAltActive;
-                renderKeyboard();
-                altKey.classList.add('blink');
-                setTimeout(() => altKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(altKey);
-
-            const accentKey = document.createElement('div');
-            accentKey.classList.add('key', 'modifier');
-            accentKey.innerText = '´';
-            accentKey.addEventListener('click', () => {
-                isAccentActive = !isAccentActive;
-                isGraveAccentActive = false;
-                renderKeyboard();
-                accentKey.classList.add('blink');
-                setTimeout(() => accentKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(accentKey);
-
-            const graveAccentKey = document.createElement('div');
-            graveAccentKey.classList.add('key', 'modifier');
-            graveAccentKey.innerText = '`';
-            graveAccentKey.addEventListener('click', () => {
-                isGraveAccentActive = !isGraveAccentActive;
-                isAccentActive = false;
-                renderKeyboard();
-                graveAccentKey.classList.add('blink');
-                setTimeout(() => graveAccentKey.classList.remove('blink'), 100);
-            });
-            keyboard.appendChild(graveAccentKey);
         }
 
         inputText.addEventListener('input', () => {
