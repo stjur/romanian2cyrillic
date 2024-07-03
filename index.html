@@ -24,13 +24,34 @@
             height: 150px;
             margin-bottom: 10px;
         }
+        .buttons {
+            display: flex;
+            width: 300px;
+            margin-top: 10px;
+        }
+        .button {
+            flex: 1;
+            height: 40px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: white;
+        }
+        .button.blink:active {
+            background-color: yellow;
+        }
         .keyboard {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             max-width: 600px;
         }
-        .key, .copy-button {
+        .key {
+            width: 40px;
             height: 40px;
             margin: 5px;
             border: 1px solid #ccc;
@@ -41,9 +62,6 @@
             cursor: pointer;
             background-color: white;
             position: relative;
-        }
-        .key {
-            width: 40px;
         }
         .key span {
             font-size: 14px;
@@ -58,14 +76,8 @@
         .key.modifier {
             width: 60px;
         }
-        .key.blink, .copy-button:active {
+        .key.blink {
             background-color: yellow;
-        }
-        .copy-button {
-            width: 300px;
-            margin-top: 10px;
-            font-size: 16px;
-            background-color: lightblue;
         }
     </style>
 </head>
@@ -73,12 +85,16 @@
     <div class="container">
         <h1>Real-Time Transliterator</h1>
         <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
-        <button class="copy-button" id="copyButton">Copy</button>
+        <div class="buttons">
+            <button class="button" id="copyButton">Copy</button>
+            <button class="button" id="deleteButton">Delete</button>
+        </div>
     </div>
     <div class="keyboard" id="keyboard"></div>
     <script>
         const inputText = document.getElementById('inputText');
         const copyButton = document.getElementById('copyButton');
+        const deleteButton = document.getElementById('deleteButton');
         const keyboard = document.getElementById('keyboard');
 
         const transliterationRules = {
@@ -294,6 +310,13 @@
             copyButton.classList.add('blink');
             setTimeout(() => copyButton.classList.remove('blink'), 100);
             alert('Text copied to clipboard!');
+        });
+
+        // Delete button functionality
+        deleteButton.addEventListener('click', () => {
+            inputText.value = '';
+            deleteButton.classList.add('blink');
+            setTimeout(() => deleteButton.classList.remove('blink'), 100);
         });
 
         // Focus on the text box when the page loads
