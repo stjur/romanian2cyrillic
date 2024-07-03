@@ -29,7 +29,7 @@
             width: 300px;
             margin-top: 10px;
         }
-        .button {
+        .copy-button, .delete-button {
             flex: 1;
             height: 40px;
             margin: 5px;
@@ -39,10 +39,8 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            background-color: white;
-        }
-        .button.blink:active {
-            background-color: yellow;
+            background-color: lightblue;
+            font-size: 16px;
         }
         .keyboard {
             display: flex;
@@ -76,7 +74,7 @@
         .key.modifier {
             width: 60px;
         }
-        .key.blink {
+        .key.blink, .copy-button:active, .delete-button:active {
             background-color: yellow;
         }
     </style>
@@ -86,8 +84,8 @@
         <h1>Real-Time Transliterator</h1>
         <textarea id="inputText" placeholder="Type here..." autofocus></textarea>
         <div class="buttons">
-            <button class="button" id="copyButton">Copy</button>
-            <button class="button" id="deleteButton">Delete</button>
+            <button class="copy-button" id="copyButton">Copy</button>
+            <button class="delete-button" id="deleteButton">Delete</button>
         </div>
     </div>
     <div class="keyboard" id="keyboard"></div>
