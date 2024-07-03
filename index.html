@@ -242,7 +242,7 @@
                 isShiftActive = !isShiftActive;
                 renderKeyboard();
                 event.preventDefault();
-            } else if (event.key === 'Alt') {
+            } else if (event.key === 'Alt' || event.key === 'AltGraph') {
                 isAltActive = !isAltActive;
                 renderKeyboard();
                 event.preventDefault();
