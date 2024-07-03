@@ -110,10 +110,12 @@
 
         const vowels = new Set(['а', 'А', 'є', 'Є', 'и', 'И', 'ї', 'Ї', 'ѡ', 'Ѡ', 'ꙋ', 'Ꙋ', 'ъ', 'Ъ', 'ѫ', 'Ѫ', 'ꙟ', 'Ꙟ']);
         const combiningAcuteAccent = '\u0301';
+        const combiningGraveAccent = '\u0300';
 
         let isShiftActive = false;
         let isAltActive = false;
         let isAccentActive = false;
+        let isGraveAccentActive = false;
 
         function transliterate(char) {
             let result = char;
@@ -127,6 +129,8 @@
             }
             if (isAccentActive && vowels.has(result)) {
                 result += combiningAcuteAccent;
+            } else if (isGraveAccentActive && vowels.has(result)) {
+                result += combiningGraveAccent;
             }
             return result;
         }
@@ -152,6 +156,7 @@
             isShiftActive = false;
             isAltActive = false;
             isAccentActive = false;
+            isGraveAccentActive = false;
         }
 
         function renderKeyboard() {
@@ -194,6 +199,17 @@
                 setTimeout(() => accentKey.classList.remove('blink'), 100);
             });
             keyboard.appendChild(accentKey);
+
+            const graveAccentKey = document.createElement('div');
+            graveAccentKey.classList.add('key', 'modifier');
+            graveAccentKey.innerText = '`';
+            graveAccentKey.addEventListener('click', () => {
+                isGraveAccentActive = !isGraveAccentActive;
+                renderKeyboard();
+                graveAccentKey.classList.add('blink');
+                setTimeout(() => graveAccentKey.classList.remove('blink'), 100);
+            });
+            keyboard.appendChild(graveAccentKey);
         }
 
         inputText.addEventListener('input', () => {
@@ -218,6 +234,10 @@
                 event.preventDefault();
             } else if (event.key === '´' || event.key === 'Dead') {
                 isAccentActive = !isAccentActive;
+                renderKeyboard();
+                event.preventDefault();
+            } else if (event.key === '`') {
+                isGraveAccentActive = !isGraveAccentActive;
                 renderKeyboard();
                 event.preventDefault();
             } else if (event.key === 'Backspace') {
