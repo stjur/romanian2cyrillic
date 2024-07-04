@@ -58,9 +58,6 @@
         .key.modifier {
             width: 60px;
         }
-        .key.blink, .copy-button:active, .delete-button:active {
-            background-color: yellow;
-        }
         .copy-button, .delete-button {
             width: 145px;
             margin-top: 10px;
@@ -172,8 +169,6 @@
                 inputText.dispatchEvent(new Event('input'));
                 resetModifiers();
                 renderKeyboard();
-                button.classList.add('blink');
-                setTimeout(() => button.classList.remove('blink'), 100);
             });
             return button;
         }
@@ -201,8 +196,6 @@
                     shiftKey.addEventListener('click', () => {
                         isShiftActive = !isShiftActive;
                         renderKeyboard();
-                        shiftKey.classList.add('blink');
-                        setTimeout(() => shiftKey.classList.remove('blink'), 100);
                     });
                     keyboard.appendChild(shiftKey);
                 } else if (key === 'alt') {
@@ -212,8 +205,6 @@
                     altKey.addEventListener('click', () => {
                         isAltActive = !isAltActive;
                         renderKeyboard();
-                        altKey.classList.add('blink');
-                        setTimeout(() => altKey.classList.remove('blink'), 100);
                     });
                     keyboard.appendChild(altKey);
                 } else if (key === '´') {
@@ -224,8 +215,6 @@
                         isAccentActive = !isAccentActive;
                         isGraveAccentActive = false;
                         renderKeyboard();
-                        accentKey.classList.add('blink');
-                        setTimeout(() => accentKey.classList.remove('blink'), 100);
                     });
                     keyboard.appendChild(accentKey);
                 } else if (key === '`') {
@@ -236,8 +225,6 @@
                         isGraveAccentActive = !isGraveAccentActive;
                         isAccentActive = false;
                         renderKeyboard();
-                        graveAccentKey.classList.add('blink');
-                        setTimeout(() => graveAccentKey.classList.remove('blink'), 100);
                     });
                     keyboard.appendChild(graveAccentKey);
                 } else {
@@ -279,14 +266,11 @@
             } else if (event.key === 'Backspace') {
                 inputText.value = inputText.value.slice(0, -1);
                 event.preventDefault();
-            } else {
-                const key = event.key.toLowerCase();
+            } else if (event.key.length === 1) { // Only handle single character keys
                 if (event.altKey) {
-                    inputText.value += transliterate(key);
-                } else {
-                    inputText.value += transliterate(key);
+                    isAltActive = true;
                 }
-                inputText.dispatchEvent(new Event('input'));
+                inputText.value += transliterate(event.key);
                 resetModifiers();
                 renderKeyboard();
                 event.preventDefault();
@@ -299,16 +283,12 @@
         copyButton.addEventListener('click', () => {
             inputText.select();
             document.execCommand('copy');
-            copyButton.classList.add('blink');
-            setTimeout(() => copyButton.classList.remove('blink'), 100);
             alert('Text copied to clipboard!');
         });
 
         // Delete button functionality
         deleteButton.addEventListener('click', () => {
             inputText.value = '';
-            deleteButton.classList.add('blink');
-            setTimeout(() => deleteButton.classList.remove('blink'), 100);
         });
 
         // Focus on the text box when the page loads
