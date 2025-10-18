@@ -1,0 +1,200 @@
+:root {
+  color-scheme: dark;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #111218;
+  color: #f5f6fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  padding: 2rem;
+}
+
+.app {
+  width: min(100%, 960px);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app__header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.app__header p {
+  margin: 0;
+  line-height: 1.6;
+  color: #c4c8d4;
+}
+
+.app__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.editor label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+#output {
+  width: 100%;
+  min-height: 220px;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #2d3142;
+  background: rgba(17, 19, 28, 0.85);
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+#output:focus {
+  outline: 2px solid #4c8bf5;
+  outline-offset: 2px;
+}
+
+.editor__controls {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.editor__controls button {
+  background: #1d2030;
+  color: inherit;
+  border: 1px solid #363b52;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.editor__controls button:hover {
+  background: #2a2f44;
+}
+
+.editor__controls button:active {
+  transform: translateY(1px);
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(31, 35, 49, 0.9), rgba(20, 24, 34, 0.9));
+  border: 1px solid rgba(80, 88, 118, 0.35);
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.5);
+}
+
+.keyboard__row {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.key {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: clamp(52px, 6vw, 70px);
+  height: clamp(52px, 6vw, 70px);
+  padding: 0.4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(79, 87, 123, 0.4);
+  background: rgba(23, 26, 38, 0.85);
+  color: #f5f6fa;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.key:hover {
+  background: rgba(45, 50, 70, 0.9);
+}
+
+.key:active {
+  transform: translateY(2px);
+}
+
+.key--space {
+  width: clamp(120px, 18vw, 240px);
+}
+
+.key__primary {
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 600;
+}
+
+.key__secondary {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 0.8rem;
+  color: #9aa0bc;
+}
+
+.key--modifier,
+.key--accent,
+.key--control {
+  background: rgba(58, 66, 94, 0.9);
+  border-color: rgba(112, 124, 164, 0.55);
+}
+
+.key--modifier:hover,
+.key--accent:hover,
+.key--control:hover {
+  background: rgba(78, 88, 120, 0.95);
+}
+
+.key--accent .key__primary {
+  font-size: clamp(1.15rem, 3vw, 1.6rem);
+}
+
+.key--accent .key__secondary {
+  bottom: 6px;
+  right: 8px;
+  font-size: 0.72rem;
+}
+
+.key--modifier .key__primary {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.key--active {
+  background: rgba(76, 139, 245, 0.25);
+  border-color: #4c8bf5;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 1.5rem 1rem;
+  }
+
+  .key {
+    width: clamp(44px, 9vw, 64px);
+    height: clamp(44px, 9vw, 64px);
+  }
+
+  .key--space {
+    width: clamp(160px, 36vw, 260px);
+  }
+}
