@@ -56,6 +56,13 @@ const combiningMarks = {
   '`': '\u0300'
 };
 
+const digitToAccentKey = {
+  Digit1: "'",
+  Digit2: '`',
+  Numpad1: "'",
+  Numpad2: '`'
+};
+
 const accentMarks = new Set(Object.values(combiningMarks));
 
 const codeToCharacterMap = {
@@ -116,8 +123,8 @@ const rows = [
   [
     { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
     { type: 'modifier', action: 'alt', label: 'Alt', classes: ['key--wide'] },
-    { type: 'accent', value: "'", label: '´' },
-    { type: 'accent', value: '`', label: '`' },
+    { type: 'accent', value: "'", label: '´', secondary: '1' },
+    { type: 'accent', value: '`', label: '`', secondary: '2' },
     { type: 'action', action: 'space', label: 'Space', classes: ['key--spacer'] }
   ]
 ];
@@ -130,8 +137,11 @@ let shiftLatch = false;
 let altLatch = false;
 let shiftHeld = false;
 let altHeld = false;
+let accentLatch = null;
+let accentHeld = null;
 
 const standardKeyRefs = [];
+const accentKeyRefs = [];
 
 function isShiftActive() {
   return shiftLatch || shiftHeld;
@@ -139,6 +149,14 @@ function isShiftActive() {
 
 function isAltActive() {
   return altLatch || altHeld;
+}
+
+function getActiveAccentKey() {
+  return accentHeld || accentLatch;
+}
+
+function isAccentActive(value) {
+  return getActiveAccentKey() === value;
 }
 
 function uppercaseChar(char) {
@@ -203,14 +221,14 @@ function handleBackspace() {
 function applyAccent(markKey) {
   const accentMark = combiningMarks[markKey];
   if (!accentMark) {
-    return;
+    return false;
   }
 
   const start = output.selectionStart;
   const end = output.selectionEnd;
 
   if (start !== end) {
-    return;
+    return false;
   }
 
   const value = output.value;
@@ -221,12 +239,12 @@ function applyAccent(markKey) {
   }
 
   if (index < 0) {
-    return;
+    return false;
   }
 
   const targetChar = value[index];
   if (!accentableCharacters.has(targetChar)) {
-    return;
+    return false;
   }
 
   const before = value.slice(0, index + 1);
@@ -246,6 +264,7 @@ function applyAccent(markKey) {
   const cursor = before.length + combining.length + accentMark.length;
   output.setSelectionRange(cursor, cursor);
   output.focus();
+  return true;
 }
 
 function updateKeyLabels() {
@@ -277,6 +296,10 @@ function updateKeyLabels() {
   if (altButton) {
     altButton.classList.toggle('key--active', isAltActive());
   }
+
+  accentKeyRefs.forEach(({ button, value }) => {
+    button.classList.toggle('key--active', isAccentActive(value));
+  });
 }
 
 function createStandardKey(value) {
@@ -344,17 +367,34 @@ function createActionKey(action, label, classes = []) {
   return button;
 }
 
-function createAccentKey(value, label) {
+function createAccentKey(value, label, secondaryLabel) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'key';
+  button.className = 'key key--accent';
   button.dataset.accent = value;
-  button.innerHTML = `<span class="key__primary">${label}</span>`;
+  const primary = document.createElement('span');
+  primary.className = 'key__primary';
+  primary.textContent = label;
+  button.appendChild(primary);
+
+  if (secondaryLabel) {
+    const secondary = document.createElement('span');
+    secondary.className = 'key__secondary';
+    secondary.textContent = secondaryLabel;
+    button.appendChild(secondary);
+  }
 
   button.addEventListener('click', () => {
-    applyAccent(value);
+    const applied = applyAccent(value);
+    if (!applied) {
+      accentLatch = accentLatch === value ? null : value;
+    } else {
+      accentLatch = null;
+    }
+    updateKeyLabels();
   });
 
+  accentKeyRefs.push({ button, value });
   return button;
 }
 
@@ -367,6 +407,14 @@ function handleCharacterInput(rawValue) {
   });
 
   insertText(transliterated);
+
+  const activeAccentKey = getActiveAccentKey();
+  if (activeAccentKey) {
+    const applied = applyAccent(activeAccentKey);
+    if (applied && accentLatch === activeAccentKey) {
+      accentLatch = null;
+    }
+  }
 
   if (shiftLatch) {
     shiftLatch = false;
@@ -388,7 +436,7 @@ function buildKeyboard() {
       } else if (keyDef.type === 'modifier') {
         button = createModifierKey(keyDef.action, keyDef.label, keyDef.classes);
       } else if (keyDef.type === 'accent') {
-        button = createAccentKey(keyDef.value, keyDef.label);
+        button = createAccentKey(keyDef.value, keyDef.label, keyDef.secondary);
       } else if (keyDef.type === 'action') {
         button = createActionKey(keyDef.action, keyDef.label, keyDef.classes);
       }
@@ -426,6 +474,13 @@ function handlePhysicalKeydown(event) {
     return;
   }
 
+  if (digitToAccentKey.hasOwnProperty(event.code)) {
+    accentHeld = digitToAccentKey[event.code];
+    updateKeyLabels();
+    event.preventDefault();
+    return;
+  }
+
   if (event.key === 'Shift') {
     shiftHeld = true;
     updateKeyLabels();
@@ -449,12 +504,6 @@ function handlePhysicalKeydown(event) {
     return;
   }
 
-  if (event.key === "'" || event.key === '`') {
-    event.preventDefault();
-    applyAccent(event.key);
-    return;
-  }
-
   if (event.key.length === 1) {
     const lower = resolveInputCharacter(event);
     if (!lower) {
@@ -466,6 +515,14 @@ function handlePhysicalKeydown(event) {
     const useAlt = isAltActive() || event.altKey;
     const transliterated = transliterate(lower, { useAlt, shift });
     insertText(transliterated);
+
+    const activeAccentKey = getActiveAccentKey();
+    if (activeAccentKey) {
+      const applied = applyAccent(activeAccentKey);
+      if (applied && accentLatch === activeAccentKey && !event.repeat) {
+        accentLatch = null;
+      }
+    }
 
     if (shiftLatch) {
       shiftLatch = false;
@@ -479,6 +536,15 @@ function handlePhysicalKeydown(event) {
 }
 
 function handlePhysicalKeyup(event) {
+  if (digitToAccentKey.hasOwnProperty(event.code)) {
+    if (accentHeld === digitToAccentKey[event.code]) {
+      accentHeld = null;
+      updateKeyLabels();
+    }
+    event.preventDefault();
+    return;
+  }
+
   if (event.key === 'Shift') {
     shiftHeld = false;
     updateKeyLabels();
