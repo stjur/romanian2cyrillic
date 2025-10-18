@@ -394,6 +394,19 @@ function buildKeyboard() {
   updateKeyLabels();
 }
 
+function resolveInputCharacter(event) {
+  if (event.code && event.code.startsWith('Key')) {
+    return event.code.slice(3).toLowerCase();
+  }
+
+  const char = event.key.toLowerCase();
+  if (baseMapping.hasOwnProperty(char) || altMapping.hasOwnProperty(char)) {
+    return char;
+  }
+
+  return null;
+}
+
 function handlePhysicalKeydown(event) {
   if (event.ctrlKey || event.metaKey) {
     return;
@@ -429,14 +442,13 @@ function handlePhysicalKeydown(event) {
   }
 
   if (event.key.length === 1) {
-    const char = event.key;
-    const lower = char.toLowerCase();
-    if (!baseMapping.hasOwnProperty(lower) && !altMapping.hasOwnProperty(lower)) {
+    const lower = resolveInputCharacter(event);
+    if (!lower) {
       return;
     }
 
     event.preventDefault();
-    const shift = isShiftActive() || (char !== lower);
+    const shift = isShiftActive() || event.shiftKey;
     const useAlt = isAltActive() || event.altKey;
     const transliterated = transliterate(lower, { useAlt, shift });
     insertText(transliterated);
