@@ -112,19 +112,19 @@ const rows = [
     { type: 'standard', value: 'â' }
   ],
   [
+    { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
     { type: 'standard', value: 'z' },
     { type: 'standard', value: 'x' },
     { type: 'standard', value: 'c' },
     { type: 'standard', value: 'v' },
     { type: 'standard', value: 'b' },
     { type: 'standard', value: 'n' },
-    { type: 'standard', value: 'm' }
+    { type: 'standard', value: 'm' },
+    { type: 'accent', value: "'", label: '´', secondary: '1' },
+    { type: 'accent', value: '`', label: '`', secondary: '2' }
   ],
   [
-    { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
     { type: 'modifier', action: 'alt', label: 'Alt', classes: ['key--wide'] },
-    { type: 'accent', value: "'", label: '´', secondary: '1' },
-    { type: 'accent', value: '`', label: '`', secondary: '2' },
     { type: 'action', action: 'space', label: 'Space', classes: ['key--spacer'] }
   ]
 ];
