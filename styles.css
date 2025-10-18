@@ -58,6 +58,7 @@ body {
   color: inherit;
   font-size: 1.25rem;
   line-height: 1.5;
+  caret-color: #f5f6fa;
   resize: vertical;
 }
 
