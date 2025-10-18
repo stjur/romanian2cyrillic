@@ -64,9 +64,53 @@ const digitToAccentKey = {
 };
 
 const deadKeyToAccentKey = {
-  '˘': "'",
-  'ˆ': '`'
+  '˘': '`',
+  'ˆ': "'"
 };
+
+const deadKeyCharacters = new Set(Object.keys(deadKeyToAccentKey));
+
+let pendingDeadKeyCleanup = false;
+
+function scheduleDeadKeyCleanup() {
+  if (pendingDeadKeyCleanup) {
+    return;
+  }
+
+  pendingDeadKeyCleanup = true;
+  requestAnimationFrame(() => {
+    pendingDeadKeyCleanup = false;
+    cleanupDeadKeyArtifacts();
+  });
+}
+
+function cleanupDeadKeyArtifacts() {
+  const value = output.value;
+  if (!value) {
+    return;
+  }
+
+  const selectionStart = output.selectionStart;
+  const selectionEnd = output.selectionEnd;
+
+  if (selectionStart !== selectionEnd) {
+    return;
+  }
+
+  const previousIndex = selectionStart - 1;
+  if (previousIndex >= 0 && deadKeyCharacters.has(value[previousIndex])) {
+    const nextValue = value.slice(0, previousIndex) + value.slice(selectionStart);
+    output.value = nextValue;
+    output.setSelectionRange(previousIndex, previousIndex);
+    return;
+  }
+
+  if (selectionStart < value.length && deadKeyCharacters.has(value[selectionStart])) {
+    const nextValue = value.slice(0, selectionStart) + value.slice(selectionStart + 1);
+    output.value = nextValue;
+    output.setSelectionRange(selectionStart, selectionStart);
+  }
+}
 
 const accentMarks = new Set(Object.values(combiningMarks));
 
@@ -563,6 +607,7 @@ function handlePhysicalKeydown(event) {
     accentHeld = deadKeyToAccentKey[event.key];
     updateKeyLabels();
     event.preventDefault();
+    scheduleDeadKeyCleanup();
     return;
   }
 
@@ -570,6 +615,7 @@ function handlePhysicalKeydown(event) {
     accentHeld = digitToAccentKey[event.code];
     updateKeyLabels();
     event.preventDefault();
+    scheduleDeadKeyCleanup();
     return;
   }
 
