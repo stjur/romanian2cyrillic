@@ -479,6 +479,13 @@ function resolveInputCharacter(event) {
     }
   }
 
+  if (event.key === 'Dead') {
+    if (event.code && event.code.startsWith('Key')) {
+      return event.code.slice(3).toLowerCase();
+    }
+    return null;
+  }
+
   const char = event.key.toLowerCase();
   if (baseMapping.hasOwnProperty(char) || altMapping.hasOwnProperty(char)) {
     return char;
@@ -524,16 +531,23 @@ function handlePhysicalKeydown(event) {
     return;
   }
 
-  if (event.key.length === 1) {
+  if (event.key.length === 1 || event.key === 'Dead') {
     const lower = resolveInputCharacter(event);
+    const accentActive = Boolean(getActiveAccentKey());
+    const altActive = isAltActive() || event.altKey;
+
     if (!lower) {
+      if (accentActive || altActive || event.key === 'Dead') {
+        requestSuppressNativeInsert();
+        event.preventDefault();
+      }
       return;
     }
 
     requestSuppressNativeInsert();
     event.preventDefault();
     const shift = isShiftActive() || event.shiftKey;
-    const useAlt = isAltActive() || event.altKey;
+    const useAlt = altActive;
     const transliterated = transliterate(lower, { useAlt, shift });
     insertText(transliterated);
 
