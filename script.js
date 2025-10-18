@@ -79,6 +79,7 @@ const rows = [
     { type: 'standard', value: 'o' },
     { type: 'standard', value: 'p' },
     { type: 'standard', value: 'ă' },
+    { type: 'standard', value: 'î' },
     { type: 'action', action: 'backspace', label: 'Backspace', classes: ['key--wide'] }
   ],
   [
@@ -91,19 +92,18 @@ const rows = [
     { type: 'standard', value: 'j' },
     { type: 'standard', value: 'k' },
     { type: 'standard', value: 'l' },
-    { type: 'standard', value: 'ș' }
+    { type: 'standard', value: 'ș' },
+    { type: 'standard', value: 'ț' },
+    { type: 'standard', value: 'â' }
   ],
   [
-    { type: 'standard', value: 'â' },
-    { type: 'standard', value: 'î' },
     { type: 'standard', value: 'z' },
     { type: 'standard', value: 'x' },
     { type: 'standard', value: 'c' },
     { type: 'standard', value: 'v' },
     { type: 'standard', value: 'b' },
     { type: 'standard', value: 'n' },
-    { type: 'standard', value: 'm' },
-    { type: 'standard', value: 'ț' }
+    { type: 'standard', value: 'm' }
   ],
   [
     { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
