@@ -701,10 +701,7 @@ function setupInputGuards() {
       return;
     }
 
-    const type = event.inputType;
-    if (type === 'insertText' || type === 'insertCompositionText') {
-      event.preventDefault();
-    }
+    event.preventDefault();
   });
 
   output.addEventListener('textInput', (event) => {
