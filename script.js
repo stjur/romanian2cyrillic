@@ -543,6 +543,17 @@ function resolveInputCharacter(event) {
   return null;
 }
 
+function handleBeforeInput(event) {
+  if (!event.inputType) {
+    event.preventDefault();
+    return;
+  }
+
+  if (event.inputType.startsWith('insert') || event.inputType.startsWith('delete')) {
+    event.preventDefault();
+  }
+}
+
 function handlePhysicalKeydown(event) {
   if (event.ctrlKey || event.metaKey) {
     return;
@@ -711,7 +722,13 @@ function init() {
   buildKeyboard();
   setupClipboard();
   setupClear();
-  output.readOnly = true;
+  output.addEventListener('beforeinput', handleBeforeInput);
+  output.addEventListener('paste', (event) => {
+    event.preventDefault();
+  });
+  output.addEventListener('drop', (event) => {
+    event.preventDefault();
+  });
   output.focus();
 
   output.addEventListener('keydown', handlePhysicalKeydown);
