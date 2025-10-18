@@ -8,6 +8,7 @@ This project provides a standalone, browser-based virtual keyboard that translit
 - Support for Romanian diacritics (ă, â, î, ș, ț) and their corresponding Old Romanian Cyrillic characters.
 - Alternative character selection via an Alt modifier (e.g., `t → ѳ`, `u → ю`).
 - Acute (´) and grave (`) accent modifiers that apply combining marks to the supported vowels. Activate them via the on-screen keys or by holding the physical **3** (acute) or **4** (grave) keys.
+- All physical-keyboard input routes through a script-controlled, read-only text area so macOS Option/dead keys never leak their native characters.
 - Shift modifier for uppercase output.
 - Copy and Clear helpers for managing the generated text.
 

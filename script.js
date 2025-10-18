@@ -179,11 +179,6 @@ let shiftHeld = false;
 let altHeld = false;
 let accentLatch = null;
 let accentHeld = null;
-let suppressNativeInsert = false;
-let suppressNativeInsertReset = null;
-let lastKnownValue = '';
-let lastSelectionStart = 0;
-let lastSelectionEnd = 0;
 
 const standardKeyRefs = [];
 const accentKeyRefs = [];
@@ -202,52 +197,6 @@ function getActiveAccentKey() {
 
 function isAccentActive(value) {
   return getActiveAccentKey() === value;
-}
-
-function scheduleNativeInsertReset() {
-  if (suppressNativeInsertReset !== null) {
-    clearTimeout(suppressNativeInsertReset);
-  }
-
-  suppressNativeInsertReset = setTimeout(() => {
-    suppressNativeInsert = false;
-    suppressNativeInsertReset = null;
-  }, 16);
-}
-
-function releaseNativeInsertSuppression() {
-  if (suppressNativeInsertReset !== null) {
-    clearTimeout(suppressNativeInsertReset);
-    suppressNativeInsertReset = null;
-  }
-  suppressNativeInsert = false;
-}
-
-function requestSuppressNativeInsert(options = {}) {
-  const { persistent = false } = options;
-  suppressNativeInsert = true;
-
-  if (persistent) {
-    if (suppressNativeInsertReset !== null) {
-      clearTimeout(suppressNativeInsertReset);
-      suppressNativeInsertReset = null;
-    }
-    return;
-  }
-
-  scheduleNativeInsertReset();
-}
-
-function syncOutputSnapshot() {
-  lastKnownValue = output.value;
-  lastSelectionStart = output.selectionStart;
-  lastSelectionEnd = output.selectionEnd;
-}
-
-function restoreOutputSnapshot() {
-  output.value = lastKnownValue;
-  output.setSelectionRange(lastSelectionStart, lastSelectionEnd);
-  output.focus();
 }
 
 function uppercaseChar(char) {
@@ -284,7 +233,6 @@ function insertText(text) {
   const cursor = start + text.length;
   output.setSelectionRange(cursor, cursor);
   output.focus();
-  syncOutputSnapshot();
 }
 
 function handleBackspace() {
@@ -296,7 +244,6 @@ function handleBackspace() {
     output.value = value.slice(0, start) + value.slice(end);
     output.setSelectionRange(start, start);
     output.focus();
-    syncOutputSnapshot();
     return;
   }
 
@@ -309,7 +256,28 @@ function handleBackspace() {
   output.value = value.slice(0, sliceStart) + value.slice(end);
   output.setSelectionRange(sliceStart, sliceStart);
   output.focus();
-  syncOutputSnapshot();
+}
+
+function handleDelete() {
+  const start = output.selectionStart;
+  const end = output.selectionEnd;
+
+  if (start !== end) {
+    const value = output.value;
+    output.value = value.slice(0, start) + value.slice(end);
+    output.setSelectionRange(start, start);
+    output.focus();
+    return;
+  }
+
+  const value = output.value;
+  if (start >= value.length) {
+    return;
+  }
+
+  output.value = value.slice(0, start) + value.slice(start + 1);
+  output.setSelectionRange(start, start);
+  output.focus();
 }
 
 function applyAccent(markKey) {
@@ -358,7 +326,6 @@ function applyAccent(markKey) {
   const cursor = before.length + combining.length + accentMark.length;
   output.setSelectionRange(cursor, cursor);
   output.focus();
-  syncOutputSnapshot();
   return true;
 }
 
@@ -584,7 +551,6 @@ function handlePhysicalKeydown(event) {
   if (deadKeyToAccentKey.hasOwnProperty(event.key)) {
     accentHeld = deadKeyToAccentKey[event.key];
     updateKeyLabels();
-    requestSuppressNativeInsert({ persistent: true });
     event.preventDefault();
     return;
   }
@@ -592,7 +558,6 @@ function handlePhysicalKeydown(event) {
   if (digitToAccentKey.hasOwnProperty(event.code)) {
     accentHeld = digitToAccentKey[event.code];
     updateKeyLabels();
-    requestSuppressNativeInsert({ persistent: true });
     event.preventDefault();
     return;
   }
@@ -607,16 +572,32 @@ function handlePhysicalKeydown(event) {
     altHeld = true;
     updateKeyLabels();
     event.preventDefault();
-    requestSuppressNativeInsert({ persistent: true });
     return;
   }
 
-  if (event.key === 'Backspace' || event.key === 'Delete' || event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter' || event.key === 'Tab') {
+  if (event.key === 'Backspace') {
+    event.preventDefault();
+    handleBackspace();
+    return;
+  }
+
+  if (event.key === 'Delete') {
+    event.preventDefault();
+    handleDelete();
+    return;
+  }
+
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    insertText('\n');
+    return;
+  }
+
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Tab') {
     return;
   }
 
   if (event.key === ' ') {
-    requestSuppressNativeInsert();
     event.preventDefault();
     insertText(' ');
     return;
@@ -629,13 +610,11 @@ function handlePhysicalKeydown(event) {
 
     if (!lower) {
       if (accentActive || altActive || event.key === 'Dead') {
-        requestSuppressNativeInsert();
         event.preventDefault();
       }
       return;
     }
 
-    requestSuppressNativeInsert();
     event.preventDefault();
     const shift = isShiftActive() || event.shiftKey;
     const useAlt = altActive;
@@ -667,7 +646,6 @@ function handlePhysicalKeyup(event) {
       accentHeld = null;
       updateKeyLabels();
     }
-    scheduleNativeInsertReset();
     event.preventDefault();
     return;
   }
@@ -677,7 +655,6 @@ function handlePhysicalKeyup(event) {
       accentHeld = null;
       updateKeyLabels();
     }
-    scheduleNativeInsertReset();
     event.preventDefault();
     return;
   }
@@ -688,7 +665,6 @@ function handlePhysicalKeyup(event) {
   } else if (event.key === 'Alt') {
     altHeld = false;
     updateKeyLabels();
-    scheduleNativeInsertReset();
   }
 }
 
@@ -713,38 +689,6 @@ function setupClear() {
   clearBtn.addEventListener('click', () => {
     output.value = '';
     output.focus();
-    syncOutputSnapshot();
-  });
-}
-
-function setupInputGuards() {
-  output.addEventListener('beforeinput', (event) => {
-    if (!suppressNativeInsert) {
-      return;
-    }
-
-    event.preventDefault();
-  });
-
-  output.addEventListener('textInput', (event) => {
-    if (suppressNativeInsert) {
-      event.preventDefault();
-    }
-  });
-
-  output.addEventListener('keypress', (event) => {
-    if (suppressNativeInsert) {
-      event.preventDefault();
-    }
-  });
-
-  output.addEventListener('input', (event) => {
-    if (suppressNativeInsert) {
-      restoreOutputSnapshot();
-      return;
-    }
-
-    syncOutputSnapshot();
   });
 }
 
@@ -767,12 +711,11 @@ function init() {
   buildKeyboard();
   setupClipboard();
   setupClear();
-  setupInputGuards();
+  output.readOnly = true;
   output.focus();
 
   output.addEventListener('keydown', handlePhysicalKeydown);
   output.addEventListener('keyup', handlePhysicalKeyup);
-  syncOutputSnapshot();
 }
 
 init();
