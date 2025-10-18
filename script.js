@@ -139,6 +139,8 @@ let shiftHeld = false;
 let altHeld = false;
 let accentLatch = null;
 let accentHeld = null;
+let suppressNativeInsert = false;
+let suppressNativeInsertReset = null;
 
 const standardKeyRefs = [];
 const accentKeyRefs = [];
@@ -157,6 +159,22 @@ function getActiveAccentKey() {
 
 function isAccentActive(value) {
   return getActiveAccentKey() === value;
+}
+
+function scheduleNativeInsertReset() {
+  if (suppressNativeInsertReset !== null) {
+    clearTimeout(suppressNativeInsertReset);
+  }
+
+  suppressNativeInsertReset = setTimeout(() => {
+    suppressNativeInsert = false;
+    suppressNativeInsertReset = null;
+  }, 0);
+}
+
+function requestSuppressNativeInsert() {
+  suppressNativeInsert = true;
+  scheduleNativeInsertReset();
 }
 
 function uppercaseChar(char) {
@@ -477,6 +495,7 @@ function handlePhysicalKeydown(event) {
   if (digitToAccentKey.hasOwnProperty(event.code)) {
     accentHeld = digitToAccentKey[event.code];
     updateKeyLabels();
+    requestSuppressNativeInsert();
     event.preventDefault();
     return;
   }
@@ -499,6 +518,7 @@ function handlePhysicalKeydown(event) {
   }
 
   if (event.key === ' ') {
+    requestSuppressNativeInsert();
     event.preventDefault();
     insertText(' ');
     return;
@@ -510,6 +530,7 @@ function handlePhysicalKeydown(event) {
       return;
     }
 
+    requestSuppressNativeInsert();
     event.preventDefault();
     const shift = isShiftActive() || event.shiftKey;
     const useAlt = isAltActive() || event.altKey;
@@ -578,6 +599,25 @@ function setupClear() {
   });
 }
 
+function setupInputGuards() {
+  output.addEventListener('beforeinput', (event) => {
+    if (!suppressNativeInsert) {
+      return;
+    }
+
+    const type = event.inputType;
+    if (type === 'insertText' || type === 'insertCompositionText') {
+      event.preventDefault();
+    }
+  });
+
+  output.addEventListener('textInput', (event) => {
+    if (suppressNativeInsert) {
+      event.preventDefault();
+    }
+  });
+}
+
 function init() {
   // Expand accentable list with uppercase versions and alternative vowels.
   const extras = Array.from(accentableCharacters);
@@ -597,6 +637,7 @@ function init() {
   buildKeyboard();
   setupClipboard();
   setupClear();
+  setupInputGuards();
   output.focus();
 
   output.addEventListener('keydown', handlePhysicalKeydown);
