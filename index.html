@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romanian to Old Romanian Cyrillic Keyboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <h1>Romanian → Old Romanian Cyrillic Keyboard</h1>
+      <p>Type Romanian characters to see them converted to Old Romanian Cyrillic in real time. Use the on-screen keyboard or your physical keyboard. Toggle <strong>Shift</strong> for uppercase, <strong>Alt</strong> for alternative transliterations, and hold <strong>3</strong> (acute ´) or <strong>4</strong> (grave `) to accent supported vowels.</p>
+    </header>
+
+    <section class="app__content">
+      <div class="editor">
+        <label for="output">Output</label>
+        <textarea id="output" spellcheck="false"></textarea>
+        <div class="editor__controls">
+          <button type="button" id="copyBtn">Copy</button>
+          <button type="button" id="clearBtn">Clear</button>
+        </div>
+      </div>
+
+      <div class="keyboard" aria-label="Romanian to Old Romanian Cyrillic keyboard">
+        <div class="keyboard__row" data-row="1"></div>
+        <div class="keyboard__row" data-row="2"></div>
+        <div class="keyboard__row" data-row="3"></div>
+        <div class="keyboard__row keyboard__row--wide" data-row="4"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
