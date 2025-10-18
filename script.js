@@ -58,6 +58,14 @@ const combiningMarks = {
 
 const accentMarks = new Set(Object.values(combiningMarks));
 
+const codeToCharacterMap = {
+  Semicolon: 'ș',
+  Quote: 'ț',
+  BracketLeft: 'ă',
+  BracketRight: 'î',
+  Backslash: 'â'
+};
+
 function isCombining(char) {
   if (!char) {
     return false;
@@ -395,8 +403,14 @@ function buildKeyboard() {
 }
 
 function resolveInputCharacter(event) {
-  if (event.code && event.code.startsWith('Key')) {
-    return event.code.slice(3).toLowerCase();
+  if (event.code) {
+    if (codeToCharacterMap.hasOwnProperty(event.code)) {
+      return codeToCharacterMap[event.code];
+    }
+
+    if (event.code.startsWith('Key')) {
+      return event.code.slice(3).toLowerCase();
+    }
   }
 
   const char = event.key.toLowerCase();
