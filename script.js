@@ -215,8 +215,26 @@ function scheduleNativeInsertReset() {
   }, 16);
 }
 
-function requestSuppressNativeInsert() {
+function releaseNativeInsertSuppression() {
+  if (suppressNativeInsertReset !== null) {
+    clearTimeout(suppressNativeInsertReset);
+    suppressNativeInsertReset = null;
+  }
+  suppressNativeInsert = false;
+}
+
+function requestSuppressNativeInsert(options = {}) {
+  const { persistent = false } = options;
   suppressNativeInsert = true;
+
+  if (persistent) {
+    if (suppressNativeInsertReset !== null) {
+      clearTimeout(suppressNativeInsertReset);
+      suppressNativeInsertReset = null;
+    }
+    return;
+  }
+
   scheduleNativeInsertReset();
 }
 
@@ -566,7 +584,7 @@ function handlePhysicalKeydown(event) {
   if (deadKeyToAccentKey.hasOwnProperty(event.key)) {
     accentHeld = deadKeyToAccentKey[event.key];
     updateKeyLabels();
-    requestSuppressNativeInsert();
+    requestSuppressNativeInsert({ persistent: true });
     event.preventDefault();
     return;
   }
@@ -574,7 +592,7 @@ function handlePhysicalKeydown(event) {
   if (digitToAccentKey.hasOwnProperty(event.code)) {
     accentHeld = digitToAccentKey[event.code];
     updateKeyLabels();
-    requestSuppressNativeInsert();
+    requestSuppressNativeInsert({ persistent: true });
     event.preventDefault();
     return;
   }
@@ -589,6 +607,7 @@ function handlePhysicalKeydown(event) {
     altHeld = true;
     updateKeyLabels();
     event.preventDefault();
+    requestSuppressNativeInsert({ persistent: true });
     return;
   }
 
@@ -648,6 +667,7 @@ function handlePhysicalKeyup(event) {
       accentHeld = null;
       updateKeyLabels();
     }
+    scheduleNativeInsertReset();
     event.preventDefault();
     return;
   }
@@ -657,6 +677,7 @@ function handlePhysicalKeyup(event) {
       accentHeld = null;
       updateKeyLabels();
     }
+    scheduleNativeInsertReset();
     event.preventDefault();
     return;
   }
@@ -667,6 +688,7 @@ function handlePhysicalKeyup(event) {
   } else if (event.key === 'Alt') {
     altHeld = false;
     updateKeyLabels();
+    scheduleNativeInsertReset();
   }
 }
 
@@ -705,6 +727,12 @@ function setupInputGuards() {
   });
 
   output.addEventListener('textInput', (event) => {
+    if (suppressNativeInsert) {
+      event.preventDefault();
+    }
+  });
+
+  output.addEventListener('keypress', (event) => {
     if (suppressNativeInsert) {
       event.preventDefault();
     }
