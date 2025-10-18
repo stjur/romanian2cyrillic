@@ -63,6 +63,11 @@ const digitToAccentKey = {
   Numpad4: '`'
 };
 
+const deadKeyToAccentKey = {
+  '˘': "'",
+  'ˆ': '`'
+};
+
 const accentMarks = new Set(Object.values(combiningMarks));
 
 function buildAccentPreview(label, accentKey) {
@@ -539,6 +544,14 @@ function handlePhysicalKeydown(event) {
     return;
   }
 
+  if (deadKeyToAccentKey.hasOwnProperty(event.key)) {
+    accentHeld = deadKeyToAccentKey[event.key];
+    updateKeyLabels();
+    requestSuppressNativeInsert();
+    event.preventDefault();
+    return;
+  }
+
   if (digitToAccentKey.hasOwnProperty(event.code)) {
     accentHeld = digitToAccentKey[event.code];
     updateKeyLabels();
@@ -613,6 +626,15 @@ function handlePhysicalKeydown(event) {
 function handlePhysicalKeyup(event) {
   if (digitToAccentKey.hasOwnProperty(event.code)) {
     if (accentHeld === digitToAccentKey[event.code]) {
+      accentHeld = null;
+      updateKeyLabels();
+    }
+    event.preventDefault();
+    return;
+  }
+
+  if (deadKeyToAccentKey.hasOwnProperty(event.key)) {
+    if (accentHeld === deadKeyToAccentKey[event.key]) {
       accentHeld = null;
       updateKeyLabels();
     }

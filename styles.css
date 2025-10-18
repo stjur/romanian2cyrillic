@@ -179,6 +179,12 @@ body {
   letter-spacing: 0.05em;
 }
 
+.key--control .key__primary,
+.key--space .key__primary {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
 .key--active {
   background: rgba(76, 139, 245, 0.25);
   border-color: #4c8bf5;
