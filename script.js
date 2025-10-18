@@ -57,13 +57,48 @@ const combiningMarks = {
 };
 
 const digitToAccentKey = {
-  Digit1: "'",
-  Digit2: '`',
-  Numpad1: "'",
-  Numpad2: '`'
+  Digit3: "'",
+  Digit4: '`',
+  Numpad3: "'",
+  Numpad4: '`'
 };
 
 const accentMarks = new Set(Object.values(combiningMarks));
+
+function buildAccentPreview(label, accentKey) {
+  if (!label || !accentKey) {
+    return label;
+  }
+
+  const accentMark = combiningMarks[accentKey];
+  if (!accentMark) {
+    return label;
+  }
+
+  const chars = Array.from(label);
+  if (chars.length === 0) {
+    return label;
+  }
+
+  const base = chars[0];
+  if (!accentableCharacters.has(base)) {
+    return label;
+  }
+
+  let combining = '';
+  let remainder = '';
+
+  for (let index = 1; index < chars.length; index += 1) {
+    const char = chars[index];
+    if (isCombining(char) && !accentMarks.has(char)) {
+      combining += char;
+    } else {
+      remainder += char;
+    }
+  }
+
+  return base + combining + accentMark + remainder;
+}
 
 const codeToCharacterMap = {
   Semicolon: 'ș',
@@ -94,8 +129,7 @@ const rows = [
     { type: 'standard', value: 'o' },
     { type: 'standard', value: 'p' },
     { type: 'standard', value: 'ă' },
-    { type: 'standard', value: 'î' },
-    { type: 'action', action: 'backspace', label: 'Backspace', classes: ['key--wide'] }
+    { type: 'standard', value: 'î' }
   ],
   [
     { type: 'standard', value: 'a' },
@@ -112,7 +146,8 @@ const rows = [
     { type: 'standard', value: 'â' }
   ],
   [
-    { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
+    { type: 'modifier', action: 'shift', label: '⇧' },
+    { type: 'modifier', action: 'alt', label: '⌥' },
     { type: 'standard', value: 'z' },
     { type: 'standard', value: 'x' },
     { type: 'standard', value: 'c' },
@@ -120,12 +155,12 @@ const rows = [
     { type: 'standard', value: 'b' },
     { type: 'standard', value: 'n' },
     { type: 'standard', value: 'm' },
-    { type: 'accent', value: "'", label: '´', secondary: '1' },
-    { type: 'accent', value: '`', label: '`', secondary: '2' }
+    { type: 'accent', value: "'", label: '´', secondary: '3' },
+    { type: 'accent', value: '`', label: '`', secondary: '4' },
+    { type: 'action', action: 'backspace', label: '⌫', classes: ['key--control'] }
   ],
   [
-    { type: 'modifier', action: 'alt', label: 'Alt', classes: ['key--wide'] },
-    { type: 'action', action: 'space', label: 'Space', classes: ['key--spacer'] }
+    { type: 'action', action: 'space', label: 'Space', classes: ['key--space'] }
   ]
 ];
 
@@ -288,6 +323,7 @@ function applyAccent(markKey) {
 function updateKeyLabels() {
   const shift = isShiftActive();
   const alt = isAltActive();
+  const accentKey = getActiveAccentKey();
 
   standardKeyRefs.forEach(({ button, value }) => {
     const primary = button.querySelector('.key__primary');
@@ -300,6 +336,10 @@ function updateKeyLabels() {
 
     if (shift) {
       label = uppercaseChar(label);
+    }
+
+    if (accentKey) {
+      label = buildAccentPreview(label, accentKey);
     }
 
     primary.textContent = label;

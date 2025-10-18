@@ -108,10 +108,6 @@ body {
   justify-content: center;
 }
 
-.keyboard__row--wide {
-  justify-content: center;
-}
-
 .key {
   position: relative;
   display: inline-flex;
@@ -138,11 +134,7 @@ body {
   transform: translateY(2px);
 }
 
-.key--wide {
-  width: clamp(100px, 12vw, 160px);
-}
-
-.key--spacer {
+.key--space {
   width: clamp(120px, 18vw, 240px);
 }
 
@@ -157,6 +149,19 @@ body {
   right: 10px;
   font-size: 0.8rem;
   color: #9aa0bc;
+}
+
+.key--modifier,
+.key--accent,
+.key--control {
+  background: rgba(58, 66, 94, 0.9);
+  border-color: rgba(112, 124, 164, 0.55);
+}
+
+.key--modifier:hover,
+.key--accent:hover,
+.key--control:hover {
+  background: rgba(78, 88, 120, 0.95);
 }
 
 .key--accent .key__primary {
@@ -189,11 +194,7 @@ body {
     height: clamp(44px, 9vw, 64px);
   }
 
-  .key--wide {
-    width: clamp(90px, 16vw, 140px);
-  }
-
-  .key--spacer {
+  .key--space {
     width: clamp(160px, 36vw, 260px);
   }
 }

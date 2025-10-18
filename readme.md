@@ -7,7 +7,7 @@ This project provides a standalone, browser-based virtual keyboard that translit
 - Real-time transliteration while typing on a physical keyboard or clicking the on-screen keys.
 - Support for Romanian diacritics (ă, â, î, ș, ț) and their corresponding Old Romanian Cyrillic characters.
 - Alternative character selection via an Alt modifier (e.g., `t → ѳ`, `u → ю`).
-- Acute (´) and grave (`) accent modifiers that apply combining marks to the supported vowels. Activate them via the on-screen keys or by holding the physical **1** (acute) or **2** (grave) keys.
+- Acute (´) and grave (`) accent modifiers that apply combining marks to the supported vowels. Activate them via the on-screen keys or by holding the physical **3** (acute) or **4** (grave) keys.
 - Shift modifier for uppercase output.
 - Copy and Clear helpers for managing the generated text.
 
