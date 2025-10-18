@@ -1,0 +1,526 @@
+const baseMapping = {
+  'a': 'а',
+  'b': 'б',
+  'c': 'ч',
+  'd': 'д',
+  'e': 'є',
+  'f': 'ф',
+  'g': 'г',
+  'h': 'х',
+  'i': 'и',
+  'j': 'џ',
+  'k': 'к',
+  'l': 'ʌ',
+  'm': 'м',
+  'n': 'н',
+  'o': 'ѡ',
+  'p': 'п',
+  'q': 'й',
+  'r': 'р',
+  's': 'с',
+  't': 'т',
+  'u': 'ꙋ',
+  'v': 'в',
+  'w': 'ѧ',
+  'x': 'ѯ',
+  'y': 'ѵ',
+  'z': 'з',
+  'ă': 'ъ',
+  'â': 'ѫ',
+  'î': 'ꙟ',
+  'ș': 'ш',
+  'ț': 'ц'
+};
+
+const altMapping = {
+  't': 'ѳ',
+  'p': 'ѱ',
+  'â': 'ѥ',
+  'u': 'ю',
+  'e': 'ѣ',
+  'ș': 'щ',
+  'o': 'о',
+  'z': 'ѕ',
+  'j': 'ж',
+  'i': 'ї',
+  'w': 'ѩ',
+  'q': 'ꙋ̆'
+};
+
+const accentableCharacters = new Set([
+  'а', 'є', 'и', 'ѡ', 'ꙋ', 'ѵ', 'ъ', 'ѫ', 'ꙟ', 'ѩ', 'ѧ', 'ѣ', 'ї', 'ѥ', 'ю', 'о'
+]);
+
+const combiningMarks = {
+  "'": '\u0301',
+  '`': '\u0300'
+};
+
+const accentMarks = new Set(Object.values(combiningMarks));
+
+function isCombining(char) {
+  if (!char) {
+    return false;
+  }
+  const code = char.codePointAt(0);
+  return code >= 0x300 && code <= 0x36f;
+}
+
+const rows = [
+  [
+    { type: 'standard', value: 'q' },
+    { type: 'standard', value: 'w' },
+    { type: 'standard', value: 'e' },
+    { type: 'standard', value: 'r' },
+    { type: 'standard', value: 't' },
+    { type: 'standard', value: 'y' },
+    { type: 'standard', value: 'u' },
+    { type: 'standard', value: 'i' },
+    { type: 'standard', value: 'o' },
+    { type: 'standard', value: 'p' },
+    { type: 'standard', value: 'ă' },
+    { type: 'action', action: 'backspace', label: 'Backspace', classes: ['key--wide'] }
+  ],
+  [
+    { type: 'standard', value: 'a' },
+    { type: 'standard', value: 's' },
+    { type: 'standard', value: 'd' },
+    { type: 'standard', value: 'f' },
+    { type: 'standard', value: 'g' },
+    { type: 'standard', value: 'h' },
+    { type: 'standard', value: 'j' },
+    { type: 'standard', value: 'k' },
+    { type: 'standard', value: 'l' },
+    { type: 'standard', value: 'ș' }
+  ],
+  [
+    { type: 'standard', value: 'â' },
+    { type: 'standard', value: 'î' },
+    { type: 'standard', value: 'z' },
+    { type: 'standard', value: 'x' },
+    { type: 'standard', value: 'c' },
+    { type: 'standard', value: 'v' },
+    { type: 'standard', value: 'b' },
+    { type: 'standard', value: 'n' },
+    { type: 'standard', value: 'm' },
+    { type: 'standard', value: 'ț' }
+  ],
+  [
+    { type: 'modifier', action: 'shift', label: 'Shift', classes: ['key--wide'] },
+    { type: 'modifier', action: 'alt', label: 'Alt', classes: ['key--wide'] },
+    { type: 'accent', value: "'", label: '´' },
+    { type: 'accent', value: '`', label: '`' },
+    { type: 'action', action: 'space', label: 'Space', classes: ['key--spacer'] }
+  ]
+];
+
+const output = document.getElementById('output');
+const copyBtn = document.getElementById('copyBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+let shiftLatch = false;
+let altLatch = false;
+let shiftHeld = false;
+let altHeld = false;
+
+const standardKeyRefs = [];
+
+function isShiftActive() {
+  return shiftLatch || shiftHeld;
+}
+
+function isAltActive() {
+  return altLatch || altHeld;
+}
+
+function uppercaseChar(char) {
+  if (!char) {
+    return char;
+  }
+  return char.toUpperCase();
+}
+
+function transliterate(inputChar, { useAlt, shift } = {}) {
+  const lower = inputChar.toLowerCase();
+  const activeAlt = useAlt && altMapping.hasOwnProperty(lower);
+  const map = activeAlt ? altMapping : baseMapping;
+  let result = map[lower];
+
+  if (!result) {
+    return shift ? uppercaseChar(inputChar) : inputChar;
+  }
+
+  if (shift) {
+    result = uppercaseChar(result);
+  }
+
+  return result;
+}
+
+function insertText(text) {
+  const start = output.selectionStart;
+  const end = output.selectionEnd;
+  const value = output.value;
+  const before = value.slice(0, start);
+  const after = value.slice(end);
+  output.value = before + text + after;
+  const cursor = start + text.length;
+  output.setSelectionRange(cursor, cursor);
+  output.focus();
+}
+
+function handleBackspace() {
+  const start = output.selectionStart;
+  const end = output.selectionEnd;
+
+  if (start !== end) {
+    const value = output.value;
+    output.value = value.slice(0, start) + value.slice(end);
+    output.setSelectionRange(start, start);
+    output.focus();
+    return;
+  }
+
+  if (start === 0) {
+    return;
+  }
+
+  const value = output.value;
+  const sliceStart = start - 1;
+  output.value = value.slice(0, sliceStart) + value.slice(end);
+  output.setSelectionRange(sliceStart, sliceStart);
+  output.focus();
+}
+
+function applyAccent(markKey) {
+  const accentMark = combiningMarks[markKey];
+  if (!accentMark) {
+    return;
+  }
+
+  const start = output.selectionStart;
+  const end = output.selectionEnd;
+
+  if (start !== end) {
+    return;
+  }
+
+  const value = output.value;
+  let index = start - 1;
+
+  while (index >= 0 && isCombining(value[index])) {
+    index -= 1;
+  }
+
+  if (index < 0) {
+    return;
+  }
+
+  const targetChar = value[index];
+  if (!accentableCharacters.has(targetChar)) {
+    return;
+  }
+
+  const before = value.slice(0, index + 1);
+  let combining = '';
+  let scanIndex = index + 1;
+
+  while (scanIndex < value.length && isCombining(value[scanIndex])) {
+    const char = value[scanIndex];
+    if (!accentMarks.has(char)) {
+      combining += char;
+    }
+    scanIndex += 1;
+  }
+
+  const after = value.slice(scanIndex);
+  output.value = before + combining + accentMark + after;
+  const cursor = before.length + combining.length + accentMark.length;
+  output.setSelectionRange(cursor, cursor);
+  output.focus();
+}
+
+function updateKeyLabels() {
+  const shift = isShiftActive();
+  const alt = isAltActive();
+
+  standardKeyRefs.forEach(({ button, value }) => {
+    const primary = button.querySelector('.key__primary');
+    const secondary = button.querySelector('.key__secondary');
+    let label = baseMapping[value] || value;
+
+    if (alt && altMapping.hasOwnProperty(value)) {
+      label = altMapping[value];
+    }
+
+    if (shift) {
+      label = uppercaseChar(label);
+    }
+
+    primary.textContent = label;
+    secondary.textContent = shift ? uppercaseChar(value) : value;
+  });
+
+  const shiftButton = document.querySelector('[data-action="shift"]');
+  const altButton = document.querySelector('[data-action="alt"]');
+  if (shiftButton) {
+    shiftButton.classList.toggle('key--active', isShiftActive());
+  }
+  if (altButton) {
+    altButton.classList.toggle('key--active', isAltActive());
+  }
+}
+
+function createStandardKey(value) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'key';
+  button.dataset.value = value;
+
+  const primary = document.createElement('span');
+  primary.className = 'key__primary';
+  const secondary = document.createElement('span');
+  secondary.className = 'key__secondary';
+
+  button.appendChild(primary);
+  button.appendChild(secondary);
+
+  button.addEventListener('click', () => {
+    handleCharacterInput(value);
+  });
+
+  standardKeyRefs.push({ button, value });
+  return button;
+}
+
+function createModifierKey(action, label, classes = []) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = ['key', 'key--modifier', ...classes].join(' ');
+  button.dataset.action = action;
+  button.innerHTML = `<span class="key__primary">${label}</span>`;
+
+  button.addEventListener('click', () => {
+    if (action === 'shift') {
+      shiftLatch = !shiftLatch;
+    } else if (action === 'alt') {
+      altLatch = !altLatch;
+    }
+    updateKeyLabels();
+  });
+
+  return button;
+}
+
+function createActionKey(action, label, classes = []) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = ['key', ...classes].join(' ');
+  button.dataset.action = action;
+  button.innerHTML = `<span class="key__primary">${label}</span>`;
+
+  button.addEventListener('click', () => {
+    switch (action) {
+      case 'backspace':
+        handleBackspace();
+        break;
+      case 'space':
+        insertText(' ');
+        break;
+      default:
+        break;
+    }
+    output.focus();
+  });
+
+  return button;
+}
+
+function createAccentKey(value, label) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'key';
+  button.dataset.accent = value;
+  button.innerHTML = `<span class="key__primary">${label}</span>`;
+
+  button.addEventListener('click', () => {
+    applyAccent(value);
+  });
+
+  return button;
+}
+
+function handleCharacterInput(rawValue) {
+  const shift = isShiftActive();
+  const alt = isAltActive();
+  const transliterated = transliterate(rawValue, {
+    useAlt: alt,
+    shift
+  });
+
+  insertText(transliterated);
+
+  if (shiftLatch) {
+    shiftLatch = false;
+  }
+  if (altLatch) {
+    altLatch = false;
+  }
+
+  updateKeyLabels();
+}
+
+function buildKeyboard() {
+  document.querySelectorAll('.keyboard__row').forEach((rowElement, index) => {
+    const row = rows[index];
+    row.forEach((keyDef) => {
+      let button;
+      if (keyDef.type === 'standard') {
+        button = createStandardKey(keyDef.value);
+      } else if (keyDef.type === 'modifier') {
+        button = createModifierKey(keyDef.action, keyDef.label, keyDef.classes);
+      } else if (keyDef.type === 'accent') {
+        button = createAccentKey(keyDef.value, keyDef.label);
+      } else if (keyDef.type === 'action') {
+        button = createActionKey(keyDef.action, keyDef.label, keyDef.classes);
+      }
+
+      if (button) {
+        rowElement.appendChild(button);
+      }
+    });
+  });
+
+  updateKeyLabels();
+}
+
+function resolveInputCharacter(event) {
+  if (event.code && event.code.startsWith('Key')) {
+    return event.code.slice(3).toLowerCase();
+  }
+
+  const char = event.key.toLowerCase();
+  if (baseMapping.hasOwnProperty(char) || altMapping.hasOwnProperty(char)) {
+    return char;
+  }
+
+  return null;
+}
+
+function handlePhysicalKeydown(event) {
+  if (event.ctrlKey || event.metaKey) {
+    return;
+  }
+
+  if (event.key === 'Shift') {
+    shiftHeld = true;
+    updateKeyLabels();
+    return;
+  }
+
+  if (event.key === 'Alt') {
+    altHeld = true;
+    updateKeyLabels();
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === 'Backspace' || event.key === 'Delete' || event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter' || event.key === 'Tab') {
+    return;
+  }
+
+  if (event.key === ' ') {
+    event.preventDefault();
+    insertText(' ');
+    return;
+  }
+
+  if (event.key === "'" || event.key === '`') {
+    event.preventDefault();
+    applyAccent(event.key);
+    return;
+  }
+
+  if (event.key.length === 1) {
+    const lower = resolveInputCharacter(event);
+    if (!lower) {
+      return;
+    }
+
+    event.preventDefault();
+    const shift = isShiftActive() || event.shiftKey;
+    const useAlt = isAltActive() || event.altKey;
+    const transliterated = transliterate(lower, { useAlt, shift });
+    insertText(transliterated);
+
+    if (shiftLatch) {
+      shiftLatch = false;
+    }
+    if (altLatch) {
+      altLatch = false;
+    }
+
+    updateKeyLabels();
+  }
+}
+
+function handlePhysicalKeyup(event) {
+  if (event.key === 'Shift') {
+    shiftHeld = false;
+    updateKeyLabels();
+  } else if (event.key === 'Alt') {
+    altHeld = false;
+    updateKeyLabels();
+  }
+}
+
+function setupClipboard() {
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(output.value);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 1600);
+    } catch (error) {
+      copyBtn.textContent = 'Press Ctrl+C';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 1600);
+    }
+  });
+}
+
+function setupClear() {
+  clearBtn.addEventListener('click', () => {
+    output.value = '';
+    output.focus();
+  });
+}
+
+function init() {
+  // Expand accentable list with uppercase versions and alternative vowels.
+  const extras = Array.from(accentableCharacters);
+  extras.forEach((char) => {
+    accentableCharacters.add(char.toUpperCase());
+  });
+
+  // Include alternative mappings in the accentable set.
+  Object.values(altMapping).forEach((char) => {
+    const base = char[0];
+    if (accentableCharacters.has(base)) {
+      accentableCharacters.add(char);
+      accentableCharacters.add(char.toUpperCase());
+    }
+  });
+
+  buildKeyboard();
+  setupClipboard();
+  setupClear();
+  output.focus();
+
+  output.addEventListener('keydown', handlePhysicalKeydown);
+  output.addEventListener('keyup', handlePhysicalKeyup);
+}
+
+init();
