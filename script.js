@@ -181,6 +181,9 @@ let accentLatch = null;
 let accentHeld = null;
 let suppressNativeInsert = false;
 let suppressNativeInsertReset = null;
+let lastKnownValue = '';
+let lastSelectionStart = 0;
+let lastSelectionEnd = 0;
 
 const standardKeyRefs = [];
 const accentKeyRefs = [];
@@ -209,12 +212,24 @@ function scheduleNativeInsertReset() {
   suppressNativeInsertReset = setTimeout(() => {
     suppressNativeInsert = false;
     suppressNativeInsertReset = null;
-  }, 0);
+  }, 16);
 }
 
 function requestSuppressNativeInsert() {
   suppressNativeInsert = true;
   scheduleNativeInsertReset();
+}
+
+function syncOutputSnapshot() {
+  lastKnownValue = output.value;
+  lastSelectionStart = output.selectionStart;
+  lastSelectionEnd = output.selectionEnd;
+}
+
+function restoreOutputSnapshot() {
+  output.value = lastKnownValue;
+  output.setSelectionRange(lastSelectionStart, lastSelectionEnd);
+  output.focus();
 }
 
 function uppercaseChar(char) {
@@ -251,6 +266,7 @@ function insertText(text) {
   const cursor = start + text.length;
   output.setSelectionRange(cursor, cursor);
   output.focus();
+  syncOutputSnapshot();
 }
 
 function handleBackspace() {
@@ -262,6 +278,7 @@ function handleBackspace() {
     output.value = value.slice(0, start) + value.slice(end);
     output.setSelectionRange(start, start);
     output.focus();
+    syncOutputSnapshot();
     return;
   }
 
@@ -274,6 +291,7 @@ function handleBackspace() {
   output.value = value.slice(0, sliceStart) + value.slice(end);
   output.setSelectionRange(sliceStart, sliceStart);
   output.focus();
+  syncOutputSnapshot();
 }
 
 function applyAccent(markKey) {
@@ -322,6 +340,7 @@ function applyAccent(markKey) {
   const cursor = before.length + combining.length + accentMark.length;
   output.setSelectionRange(cursor, cursor);
   output.focus();
+  syncOutputSnapshot();
   return true;
 }
 
@@ -672,6 +691,7 @@ function setupClear() {
   clearBtn.addEventListener('click', () => {
     output.value = '';
     output.focus();
+    syncOutputSnapshot();
   });
 }
 
@@ -691,6 +711,15 @@ function setupInputGuards() {
     if (suppressNativeInsert) {
       event.preventDefault();
     }
+  });
+
+  output.addEventListener('input', (event) => {
+    if (suppressNativeInsert) {
+      restoreOutputSnapshot();
+      return;
+    }
+
+    syncOutputSnapshot();
   });
 }
 
@@ -718,6 +747,7 @@ function init() {
 
   output.addEventListener('keydown', handlePhysicalKeydown);
   output.addEventListener('keyup', handlePhysicalKeyup);
+  syncOutputSnapshot();
 }
 
 init();
