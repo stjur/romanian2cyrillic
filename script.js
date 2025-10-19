@@ -209,7 +209,7 @@ const rows = [
     { type: 'action', action: 'backspace', label: '⌫', classes: ['key--control'] }
   ],
   [
-    { type: 'action', action: 'space', label: 'Space', classes: ['key--space'] }
+    { type: 'action', action: 'space', label: '␠', classes: ['key--space'] }
   ]
 ];
 
