@@ -1,0 +1,239 @@
+html,
+body {
+  background: transparent !important;
+}
+
+:root {
+  color: #f2f2f2;
+  background-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 0.95rem;
+  overflow-x: hidden;
+}
+
+.app {
+  width: min(100%, 880px);
+  margin: 0 auto;
+  padding: clamp(0.75rem, 4vw, 1.35rem) clamp(0.75rem, 4vw, 1.5rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.app__content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+#output {
+  width: 100%;
+  min-height: 200px;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  caret-color: #f2f2f2;
+  resize: vertical;
+}
+
+#output::placeholder {
+  color: #7e7e7e;
+}
+
+#output:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.editor__controls {
+  margin-top: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+
+.editor__controls button {
+  background: none;
+  border: none;
+  color: #f2f2f2;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  line-height: 1;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.08s ease;
+}
+
+.editor__controls button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.editor__controls button:active {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.75);
+  transform: translateY(1px);
+}
+
+.editor__controls button:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+}
+
+.editor__controls button.is-feedback {
+  color: #ffffff;
+}
+
+.editor__controls button.is-error {
+  color: #ff9a9a;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.2rem, 1.2vw, 0.45rem);
+}
+
+.keyboard__row {
+  display: grid;
+  gap: clamp(0.2rem, 1.2vw, 0.45rem);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  width: 100%;
+}
+
+.keyboard__row[data-row="4"] {
+  grid-template-columns: 1fr;
+}
+
+.key {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: clamp(22px, 5.5vw, 42px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: transparent;
+  color: #f2f2f2;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+  box-shadow: none;
+}
+
+.key:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.key:active {
+  transform: translateY(1px);
+}
+
+.key--space {
+  aspect-ratio: auto;
+  min-height: 42px;
+  width: min(60%, 320px);
+  justify-self: center;
+}
+
+.key__primary {
+  font-size: clamp(0.85rem, 2.1vw, 1.05rem);
+  font-weight: 500;
+}
+
+.key__secondary {
+  position: absolute;
+  bottom: 5px;
+  right: 6px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.key--modifier .key__secondary,
+.key--control .key__secondary,
+.key--space .key__secondary {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.key--modifier,
+.key--accent,
+.key--control {
+  background: rgba(128, 128, 128, 0.65);
+  border-color: rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+}
+
+.key--modifier .key__primary,
+.key--control .key__primary,
+.key--space .key__primary {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+.key--accent .key__primary {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+}
+
+.key--accent .key__secondary {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.key--active {
+  background: rgba(168, 168, 168, 0.75);
+  border-color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .keyboard {
+    gap: 0.32rem;
+  }
+
+  .keyboard__row {
+    gap: 0.32rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 0.6rem 0.55rem 0;
+    gap: 1.1rem;
+  }
+
+  #output {
+    min-height: 160px;
+    padding: 0.75rem;
+  }
+
+  .keyboard {
+    gap: 0.26rem;
+  }
+
+  .keyboard__row {
+    gap: 0.26rem;
+  }
+
+  .key {
+    border-radius: 6px;
+    min-height: clamp(20px, 6.6vw, 34px);
+  }
+}
