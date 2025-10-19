@@ -86,14 +86,18 @@ body {
   border-radius: 4px;
 }
 
+.editor__controls button.is-feedback {
+  color: #ffffff;
+}
+
+.editor__controls button.is-error {
+  color: #ff9a9a;
+}
+
 .keyboard {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  padding: 0.65rem;
-  border-radius: 10px;
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
 .keyboard__row {
@@ -189,7 +193,6 @@ body {
   }
 
   .keyboard {
-    padding: 0.55rem;
     gap: 0.4rem;
   }
 

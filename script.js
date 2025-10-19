@@ -216,6 +216,7 @@ const rows = [
 const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 const clearBtn = document.getElementById('clearBtn');
+const copyBtnDefaultTitle = copyBtn ? copyBtn.getAttribute('title') || '' : '';
 
 let shiftLatch = false;
 let altLatch = false;
@@ -729,14 +730,20 @@ function setupClipboard() {
   copyBtn.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(output.value);
-      copyBtn.textContent = 'Copied!';
+      copyBtn.classList.remove('is-error');
+      copyBtn.classList.add('is-feedback');
+      copyBtn.title = 'Copied!';
       setTimeout(() => {
-        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('is-feedback');
+        copyBtn.title = copyBtnDefaultTitle;
       }, 1600);
     } catch (error) {
-      copyBtn.textContent = 'Press Ctrl+C';
+      copyBtn.classList.remove('is-feedback');
+      copyBtn.classList.add('is-error');
+      copyBtn.title = 'Press Ctrl+C';
       setTimeout(() => {
-        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('is-error');
+        copyBtn.title = copyBtnDefaultTitle;
       }, 1600);
     }
   });
