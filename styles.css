@@ -66,6 +66,7 @@ body {
   gap: 0.5rem;
 }
 
+
 .editor__controls button {
   background: none;
   border: none;
@@ -74,10 +75,19 @@ body {
   cursor: pointer;
   padding: 0.2rem 0.3rem;
   line-height: 1;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.08s ease;
 }
 
 .editor__controls button:hover {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.editor__controls button:active {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.75);
+  transform: translateY(1px);
 }
 
 .editor__controls button:focus-visible {
