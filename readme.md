@@ -11,6 +11,7 @@ This project provides a standalone, browser-based virtual keyboard that translit
 - All physical-keyboard input routes through custom handlers that block macOS Option/dead keys from leaking their native characters while keeping the caret visible.
 - Shift modifier for uppercase output.
 - Copy and Clear helpers for managing the generated text.
+- Transparent page background so the keyboard blends seamlessly when embedded on sites with custom themes.
 
 ## Usage
 
