@@ -203,6 +203,25 @@ body {
   color: #ffffff;
 }
 
+.is-embedded,
+.is-embedded body {
+  height: 100%;
+}
+
+.is-embedded body {
+  display: flex;
+  flex-direction: column;
+}
+
+.is-embedded .app {
+  flex: 1 0 auto;
+  min-height: 100%;
+}
+
+.is-embedded .app__content {
+  flex: 1 0 auto;
+}
+
 @media (max-width: 768px) {
   .keyboard {
     gap: 0.32rem;

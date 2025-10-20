@@ -114,6 +114,13 @@ function cleanupDeadKeyArtifacts() {
 
 const accentMarks = new Set(Object.values(combiningMarks));
 
+const rootElement = document.documentElement;
+const isEmbedded = window.self !== window.top;
+
+if (isEmbedded) {
+  rootElement.classList.add('is-embedded');
+}
+
 function buildAccentPreview(label, accentKey) {
   if (!label || !accentKey) {
     return label;
