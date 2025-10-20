@@ -229,14 +229,6 @@ body {
   flex: 1 0 auto;
 }
 
-.is-embedded .editor {
-  flex: 1 1 auto;
-}
-
-.is-embedded #output {
-  flex: 1 1 260px;
-}
-
 @media (max-width: 768px) {
   .keyboard {
     gap: 0.32rem;
